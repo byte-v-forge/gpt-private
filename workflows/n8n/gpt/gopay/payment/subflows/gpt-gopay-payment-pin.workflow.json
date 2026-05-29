@@ -1,0 +1,817 @@
+{
+  "id": "gpt-gopay-payment-pin",
+  "name": "GPT GoPay Payment PIN Subflow",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "gpt-gopay-payment-pin-trigger",
+      "name": "When Executed by GoPay Payment Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/start-pin' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $json.job_id, account_id: $json.account_id, n8n_execution_id: $json.n8n_execution_id, user_id: $json.user_id, activation_id: $json.activation_id, state_json: $json.state_json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-start",
+      "name": "Start PIN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-payment-pin-ready-cond",
+              "leftValue": "={{ $json.account_token_ready }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-ready",
+      "name": "PIN Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        640,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-payment-pin-otp-required-cond",
+              "leftValue": "={{ $json.otp_required }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-otp-required",
+      "name": "PIN OTP Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/request-pin-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-request-otp",
+      "name": "Request PIN OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1280,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const start = $('Start PIN').first().json;\nconst timeoutSeconds = Math.max(70, Number(start.otp_timeout_seconds || 300));\nconst intervalSeconds = 70;\nconst maxAttempts = Math.ceil(timeoutSeconds / intervalSeconds);\nreturn Array.from({ length: maxAttempts }, (_, index) => ({ json: { attempt: index + 1, max_attempts: maxAttempts, interval_seconds: intervalSeconds, deadline_seconds: timeoutSeconds, activation_id: start.activation_id, otp_channel: start.otp_channel, otp_issued_after_unix: start.otp_issued_after_unix } }));"
+      },
+      "id": "gpt-gopay-payment-pin-build-otp-poll-items",
+      "name": "Build PIN OTP Poll Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-loop-otp-polls",
+      "name": "Loop PIN OTP Polls",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1920,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/retry-pin' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel, state_json: $('Start PIN').first().json.state_json, data: $('Start PIN').first().json.data } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-retry",
+      "name": "Retry PIN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/check-pin-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-check-otp",
+      "name": "Check PIN OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-payment-pin-otp-found-cond",
+              "leftValue": "={{ $json.otp_found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-otp-found",
+      "name": "PIN OTP Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2560,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 70,
+        "unit": "seconds"
+      },
+      "id": "gpt-gopay-payment-pin-wait-before-otp-recheck",
+      "name": "Wait Before PIN OTP Recheck",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2880,
+        320
+      ],
+      "webhookId": "gpt-gopay-payment-pin-wait-before-otp-recheck-wait"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/complete-pin' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel, state_json: $('Start PIN').first().json.state_json, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_source: $('Check PIN OTP').first().json.otp_source, data: { pin_start: $('Start PIN').first().json, otp: $('Check PIN OTP').first().json } } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-complete-with-otp",
+      "name": "Complete PIN With OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2880,
+        120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/request-pin-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Retry PIN').first().json.otp_channel } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-request-retry-otp",
+      "name": "Request PIN OTP Retry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const start = $('Retry PIN').first().json;\nconst timeoutSeconds = Math.max(70, Number(start.otp_timeout_seconds || 300));\nconst intervalSeconds = 70;\nconst maxAttempts = Math.ceil(timeoutSeconds / intervalSeconds);\nreturn Array.from({ length: maxAttempts }, (_, index) => ({ json: { attempt: index + 1, max_attempts: maxAttempts, interval_seconds: intervalSeconds, deadline_seconds: timeoutSeconds, activation_id: start.activation_id, otp_channel: start.otp_channel, otp_issued_after_unix: start.otp_issued_after_unix } }));"
+      },
+      "id": "gpt-gopay-payment-pin-build-retry-otp-poll-items",
+      "name": "Build PIN Retry OTP Poll Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-loop-retry-otp-polls",
+      "name": "Loop PIN Retry OTP Polls",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3200,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, error_message: 'gopay ensure pin otp not received before timeout', data: { pin_start: $('Start PIN').first().json, otp: { found: false, timeout: true } } } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-fail-otp-timeout",
+      "name": "Fail PIN OTP Timeout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/check-pin-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Retry PIN').first().json.otp_channel, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-check-retry-otp",
+      "name": "Check PIN Retry OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-payment-pin-retry-otp-found-cond",
+              "leftValue": "={{ $json.otp_found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-retry-otp-found",
+      "name": "PIN Retry OTP Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3840,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 70,
+        "unit": "seconds"
+      },
+      "id": "gpt-gopay-payment-pin-wait-before-retry-otp-recheck",
+      "name": "Wait Before PIN Retry OTP Recheck",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4160,
+        160
+      ],
+      "webhookId": "gpt-gopay-payment-pin-wait-before-retry-otp-recheck-wait"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/complete-pin' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Retry PIN').first().json.otp_channel, state_json: $('Retry PIN').first().json.state_json, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_source: $('Check PIN Retry OTP').first().json.otp_source, data: { pin_start: $('Start PIN').first().json, pin_retry: $('Retry PIN').first().json, otp: $('Check PIN Retry OTP').first().json } } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-complete-with-retry-otp",
+      "name": "Complete PIN With Retry OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4160,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-payment-pin-complete-ready-cond",
+              "leftValue": "={{ $json.account_token_ready }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-complete-ready",
+      "name": "PIN Complete Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, error_message: 'gopay account token is not ready after ensure pin setup', data: $json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-fail-not-ready",
+      "name": "Fail PIN Not Ready",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4800,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $input.first().json }];"
+      },
+      "id": "gpt-gopay-payment-pin-build-success",
+      "name": "Build PIN Success",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4800,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Start and already-ready path",
+        "height": 280,
+        "width": 820,
+        "color": 4
+      },
+      "id": "layout-note-gopay-payment-pin-01",
+      "name": "Layout Note - gopay-payment-pin-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Primary PIN OTP polling",
+        "height": 280,
+        "width": 1880,
+        "color": 5
+      },
+      "id": "layout-note-gopay-payment-pin-02",
+      "name": "Layout Note - gopay-payment-pin-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Retry PIN + retry OTP",
+        "height": 260,
+        "width": 2160,
+        "color": 6
+      },
+      "id": "layout-note-gopay-payment-pin-03",
+      "name": "Layout Note - gopay-payment-pin-03",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Final readiness and failure exits",
+        "height": 480,
+        "width": 600,
+        "color": 3
+      },
+      "id": "layout-note-gopay-payment-pin-04",
+      "name": "Layout Note - gopay-payment-pin-04",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4440,
+        -120
+      ]
+    }
+  ],
+  "connections": {
+    "When Executed by GoPay Payment Workflow": {
+      "main": [
+        [
+          {
+            "node": "Start PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start PIN": {
+      "main": [
+        [
+          {
+            "node": "PIN Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN Ready?": {
+      "main": [
+        [
+          {
+            "node": "Build PIN Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PIN OTP Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN OTP Required?": {
+      "main": [
+        [
+          {
+            "node": "Request PIN OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail PIN Not Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request PIN OTP": {
+      "main": [
+        [
+          {
+            "node": "Build PIN OTP Poll Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build PIN OTP Poll Items": {
+      "main": [
+        [
+          {
+            "node": "Loop PIN OTP Polls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop PIN OTP Polls": {
+      "main": [
+        [
+          {
+            "node": "Retry PIN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check PIN OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check PIN OTP": {
+      "main": [
+        [
+          {
+            "node": "PIN OTP Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN OTP Found?": {
+      "main": [
+        [
+          {
+            "node": "Complete PIN With OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Before PIN OTP Recheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before PIN OTP Recheck": {
+      "main": [
+        [
+          {
+            "node": "Loop PIN OTP Polls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry PIN": {
+      "main": [
+        [
+          {
+            "node": "Request PIN OTP Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request PIN OTP Retry": {
+      "main": [
+        [
+          {
+            "node": "Build PIN Retry OTP Poll Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build PIN Retry OTP Poll Items": {
+      "main": [
+        [
+          {
+            "node": "Loop PIN Retry OTP Polls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop PIN Retry OTP Polls": {
+      "main": [
+        [
+          {
+            "node": "Fail PIN OTP Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check PIN Retry OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check PIN Retry OTP": {
+      "main": [
+        [
+          {
+            "node": "PIN Retry OTP Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN Retry OTP Found?": {
+      "main": [
+        [
+          {
+            "node": "Complete PIN With Retry OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Before PIN Retry OTP Recheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before PIN Retry OTP Recheck": {
+      "main": [
+        [
+          {
+            "node": "Loop PIN Retry OTP Polls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete PIN With OTP": {
+      "main": [
+        [
+          {
+            "node": "PIN Complete Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete PIN With Retry OTP": {
+      "main": [
+        [
+          {
+            "node": "PIN Complete Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN Complete Ready?": {
+      "main": [
+        [
+          {
+            "node": "Build PIN Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail PIN Not Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": []
+}

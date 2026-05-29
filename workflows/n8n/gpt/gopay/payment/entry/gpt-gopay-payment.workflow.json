@@ -1,0 +1,906 @@
+{
+  "id": "gpt-gopay-payment",
+  "name": "GPT GoPay Payment",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gpt/gopay-payment",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-start-webhook",
+      "name": "Start",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "byte-v-forge-gpt-gopay-payment"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "job-id",
+              "name": "job_id",
+              "value": "={{ $json.body?.job_id || $json.job_id }}",
+              "type": "string"
+            },
+            {
+              "id": "account-id",
+              "name": "account_id",
+              "value": "={{ $json.body?.account_id || $json.account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "n8n-execution-id",
+              "name": "n8n_execution_id",
+              "value": "={{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "action-scope",
+              "name": "action_scope",
+              "value": "gopay-payment",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-normalize-input",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/resolve-account' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Normalize Input').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-resolve-account",
+      "name": "Resolve Account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/probe-plus-trial' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-probe-plus-trial",
+      "name": "Probe Plus Trial",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eligible-cond",
+              "leftValue": "={{ $json.checked && ($json.plus_trial_eligible || $json.plus_active) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-eligible",
+      "name": "Eligible?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, error_message: 'account is not plus trial eligible', data: $('Probe Plus Trial').first().json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-fail-not-eligible",
+      "name": "Fail Not Eligible",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/prepare-checkout' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, user_id: $('Run GoPay Payment Signup').first().json.user_id, phone: $('Run GoPay Payment Signup').first().json.phone, state_json: $('Run GoPay Payment Balance').first().json.state_json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-prepare-checkout",
+      "name": "Prepare Checkout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3520,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/prepare-link' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, user_id: $('Run GoPay Payment Signup').first().json.user_id, phone: $('Run GoPay Payment Signup').first().json.phone, flow_id: $('Prepare Checkout').first().json.flow_id, checkout_url: $('Prepare Checkout').first().json.checkout_url, checkout_session_id: $('Prepare Checkout').first().json.checkout_session_id, state_json: $('Prepare Checkout').first().json.state_json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-prepare-link",
+      "name": "Prepare Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/start-payment' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, user_id: $('Run GoPay Payment Signup').first().json.user_id, phone: $('Run GoPay Payment Signup').first().json.phone, activation_id: $('Run GoPay Payment Signup').first().json.activation_id, flow_id: $('Prepare Link').first().json.flow_id, state_json: $('Prepare Link').first().json.state_json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-start-payment",
+      "name": "Start Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4160,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "otp-required-cond",
+              "leftValue": "={{ $json.otp_required }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-otp-required",
+      "name": "OTP Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/complete-payment' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Start Payment').first().json.flow_id, state_json: $('Start Payment').first().json.state_json, use_account_token: $('Start Payment').first().json.use_account_token, otp_required: false, otp_issued_after_unix: $('Start Payment').first().json.otp_issued_after_unix, otp_source: 'not_required', data: $('Start Payment').first().json.data } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-complete-payment-without-otp",
+      "name": "Complete Payment Without OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4800,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const start = $('Start Payment').first().json;\nconst timeoutSeconds = Math.max(70, Number(start.otp_timeout_seconds || 300));\nconst intervalSeconds = 70;\nconst maxAttempts = Math.ceil(timeoutSeconds / intervalSeconds);\nreturn Array.from({ length: maxAttempts }, (_, index) => ({ json: {\n  attempt: index + 1,\n  max_attempts: maxAttempts,\n  interval_seconds: intervalSeconds,\n  deadline_seconds: timeoutSeconds,\n  flow_id: start.flow_id,\n  activation_id: start.activation_id,\n  otp_issued_after_unix: start.otp_issued_after_unix,\n}}));"
+      },
+      "id": "gpt-gopay-payment-build-otp-poll-items",
+      "name": "Build OTP Poll Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4800,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-loop-otp-polls",
+      "name": "Loop OTP Polls",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        5120,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Start Payment').first().json.flow_id, error_message: 'gopay payment otp not received before timeout', data: { payment: $('Start Payment').first().json, otp: { found: false, timeout: true } } } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-fail-otp-timeout",
+      "name": "Fail OTP Timeout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5440,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/check-payment-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, activation_id: $('Run GoPay Payment Signup').first().json.activation_id, otp_issued_after_unix: $('Start Payment').first().json.otp_issued_after_unix, data: $json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-check-payment-otp",
+      "name": "Check Payment OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5440,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "otp-found-cond",
+              "leftValue": "={{ $json.otp_found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-otp-found",
+      "name": "OTP Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5760,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 70,
+        "unit": "seconds"
+      },
+      "id": "gpt-gopay-payment-wait-otp-recheck",
+      "name": "Wait Before OTP Recheck",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        6080,
+        80
+      ],
+      "webhookId": "byte-v-forge-gpt-gopay-payment-wait-otp-recheck"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/complete-payment' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Start Payment').first().json.flow_id, state_json: $('Start Payment').first().json.state_json, use_account_token: $('Start Payment').first().json.use_account_token, otp_required: true, otp_issued_after_unix: $('Start Payment').first().json.otp_issued_after_unix, otp_source: $json.otp_source, data: $('Start Payment').first().json.data } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-complete-payment-with-otp",
+      "name": "Complete Payment With OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6080,
+        -160
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/finish' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, charge_ref: $json.charge_ref, data: { signup: $('Run GoPay Payment Signup').first().json.data, ensure_pin: $('Run GoPay Payment PIN').first().json.data, ensure_balance: $('Run GoPay Payment Balance').first().json.data, gopay_payment: $json.data } } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-finish",
+      "name": "Finish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6400,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "workflowId": "gpt-gopay-payment-signup"
+      },
+      "id": "gpt-gopay-payment-run-signup-subflow",
+      "name": "Run GoPay Payment Signup",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const current = $input.first().json;\nconst signup = $('Run GoPay Payment Signup').first().json;\nreturn [{ json: { ...current, phone: signup.phone, user_id: signup.user_id, activation_id: signup.activation_id, state_json: current.state_json || signup.state_json } }];"
+      },
+      "id": "gpt-gopay-payment-build-balance-input",
+      "name": "Build Balance Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "gpt-gopay-payment-balance"
+      },
+      "id": "gpt-gopay-payment-run-balance-subflow",
+      "name": "Run GoPay Payment Balance",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        3200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Normalize Input').first().json;\nconst account = $('Resolve Account').first().json;\nconst signup = $('Run GoPay Payment Signup').first().json;\nreturn [{ json: {\n  job_id: input.job_id,\n  account_id: account.account_id,\n  n8n_execution_id: input.n8n_execution_id,\n  user_id: signup.user_id,\n  activation_id: signup.activation_id,\n  state_json: signup.state_json,\n} }];"
+      },
+      "id": "gpt-gopay-payment-build-pin-input",
+      "name": "Build PIN Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "gpt-gopay-payment-pin"
+      },
+      "id": "gpt-gopay-payment-run-pin",
+      "name": "Run GoPay Payment PIN",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-payment-pin-complete-cond",
+              "leftValue": "={{ $json.account_token_ready }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-payment-pin-complete",
+      "name": "Payment PIN Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $input.first().json }];"
+      },
+      "id": "gpt-gopay-payment-return-pin-failure",
+      "name": "Return PIN Failure",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Eligibility and signup",
+        "height": 420,
+        "width": 1760,
+        "color": 4
+      },
+      "id": "layout-note-gopay-payment-01",
+      "name": "Layout Note - gopay-payment-01",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Reusable PIN subflow before balance/payment",
+        "height": 420,
+        "width": 1080,
+        "color": 5
+      },
+      "id": "layout-note-gopay-payment-02",
+      "name": "Layout Note - gopay-payment-02",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Balance → checkout → payment",
+        "height": 420,
+        "width": 1760,
+        "color": 6
+      },
+      "id": "layout-note-gopay-payment-03",
+      "name": "Layout Note - gopay-payment-03",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2800,
+        -140
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Payment OTP lane",
+        "height": 620,
+        "width": 1600,
+        "color": 3
+      },
+      "id": "layout-note-gopay-payment-04",
+      "name": "Layout Note - gopay-payment-04",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        4720,
+        -420
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Resolve Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Account": {
+      "main": [
+        [
+          {
+            "node": "Probe Plus Trial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probe Plus Trial": {
+      "main": [
+        [
+          {
+            "node": "Eligible?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eligible?": {
+      "main": [
+        [
+          {
+            "node": "Run GoPay Payment Signup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Not Eligible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Checkout": {
+      "main": [
+        [
+          {
+            "node": "Prepare Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Link": {
+      "main": [
+        [
+          {
+            "node": "Start Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Payment": {
+      "main": [
+        [
+          {
+            "node": "OTP Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OTP Required?": {
+      "main": [
+        [
+          {
+            "node": "Build OTP Poll Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Complete Payment Without OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build OTP Poll Items": {
+      "main": [
+        [
+          {
+            "node": "Loop OTP Polls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop OTP Polls": {
+      "main": [
+        [
+          {
+            "node": "Fail OTP Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Payment OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Payment OTP": {
+      "main": [
+        [
+          {
+            "node": "OTP Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OTP Found?": {
+      "main": [
+        [
+          {
+            "node": "Complete Payment With OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Before OTP Recheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before OTP Recheck": {
+      "main": [
+        [
+          {
+            "node": "Loop OTP Polls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Payment With OTP": {
+      "main": [
+        [
+          {
+            "node": "Finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Payment Without OTP": {
+      "main": [
+        [
+          {
+            "node": "Finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run GoPay Payment Signup": {
+      "main": [
+        [
+          {
+            "node": "Build PIN Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Balance Input": {
+      "main": [
+        [
+          {
+            "node": "Run GoPay Payment Balance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run GoPay Payment Balance": {
+      "main": [
+        [
+          {
+            "node": "Prepare Checkout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build PIN Input": {
+      "main": [
+        [
+          {
+            "node": "Run GoPay Payment PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run GoPay Payment PIN": {
+      "main": [
+        [
+          {
+            "node": "Payment PIN Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment PIN Complete?": {
+      "main": [
+        [
+          {
+            "node": "Build Balance Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return PIN Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": []
+}

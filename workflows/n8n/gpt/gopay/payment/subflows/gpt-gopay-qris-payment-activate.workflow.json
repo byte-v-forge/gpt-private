@@ -1,0 +1,679 @@
+{
+  "id": "gpt-gopay-qris-payment-activate",
+  "name": "GPT GoPay QRIS Payment Activate",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gpt/gopay-qris-payment-activate",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-start-webhook",
+      "name": "Start",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "byte-v-forge-gpt-gopay-qris-payment-activate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "job-id",
+              "name": "job_id",
+              "value": "={{ $json.body?.job_id || $json.job_id }}",
+              "type": "string"
+            },
+            {
+              "id": "account-id",
+              "name": "account_id",
+              "value": "={{ $json.body?.account_id || $json.account_id }}",
+              "type": "string"
+            },
+            {
+              "id": "n8n-execution-id",
+              "name": "n8n_execution_id",
+              "value": "={{ $execution.id }}",
+              "type": "string"
+            },
+            {
+              "id": "action-scope",
+              "name": "action_scope",
+              "value": "gopay-qris-payment-activate",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-normalize-input",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/resolve-account' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Normalize Input').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-resolve-account",
+      "name": "Resolve Account",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/probe-plus-trial' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-probe-plus-trial",
+      "name": "Probe Plus Trial",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eligible-cond",
+              "leftValue": "={{ $json.checked && ($json.plus_trial_eligible || $json.plus_active) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-eligible",
+      "name": "Eligible?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/prepare-checkout' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-prepare-checkout",
+      "name": "Prepare Checkout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, error_message: 'account is not plus trial eligible', data: $('Probe Plus Trial').first().json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-fail-not-eligible",
+      "name": "Fail Not Eligible",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/prepare-link' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Prepare Checkout').first().json.flow_id, checkout_url: $('Prepare Checkout').first().json.checkout_url, checkout_session_id: $('Prepare Checkout').first().json.checkout_session_id, state_json: $('Prepare Checkout').first().json.state_json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-prepare-link",
+      "name": "Prepare Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/start-payment' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Prepare Link').first().json.flow_id, state_json: $('Prepare Link').first().json.state_json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-start-payment",
+      "name": "Start Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/complete-payment' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Start Payment').first().json.flow_id, state_json: $('Start Payment').first().json.state_json, use_account_token: $('Start Payment').first().json.use_account_token, data: $('Start Payment').first().json.data } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-complete-payment",
+      "name": "Complete Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "manual-required-cond",
+              "leftValue": "={{ $json.awaiting_manual_confirmation }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-manual-required",
+      "name": "Manual Confirmation Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const payment = $('Complete Payment').first().json;\nconst timeoutSeconds = Math.max(70, Number(payment.manual_payment_timeout_seconds || 1800));\nconst intervalSeconds = 70;\nconst maxAttempts = Math.ceil(timeoutSeconds / intervalSeconds);\nreturn Array.from({ length: maxAttempts }, (_, index) => ({\n  json: {\n    attempt: index + 1,\n    max_attempts: maxAttempts,\n    interval_seconds: intervalSeconds,\n    deadline_seconds: timeoutSeconds,\n    flow_id: payment.flow_id,\n  },\n}));"
+      },
+      "id": "gpt-gopay-qris-payment-activate-build-manual-poll-items",
+      "name": "Build Manual Payment Poll Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-loop-manual-polls",
+      "name": "Loop Manual Payment Polls",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Complete Payment').first().json.flow_id, error_message: 'manual gopay payment not confirmed before timeout', data: { payment: $('Complete Payment').first().json, manual_payment_confirmation: { required: true, confirmed: false, timeout: true } } } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-fail-manual-timeout",
+      "name": "Fail Manual Timeout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/check-manual-payment' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Complete Payment').first().json.flow_id, data: $json } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-check-manual-payment",
+      "name": "Check Manual Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "manual-confirmed-cond",
+              "leftValue": "={{ $json.manual_payment_confirmed }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-manual-confirmed",
+      "name": "Manual Payment Confirmed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 70,
+        "unit": "seconds"
+      },
+      "id": "gpt-gopay-qris-payment-activate-wait-manual-recheck",
+      "name": "Wait Before Manual Recheck",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        4480,
+        0
+      ],
+      "webhookId": "byte-v-forge-gpt-gopay-qris-payment-activate-wait-manual-recheck"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/confirm-manual-payment' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Complete Payment').first().json.flow_id, state_json: $('Complete Payment').first().json.state_json, data: $('Complete Payment').first().json.data } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-confirm-manual-payment",
+      "name": "Confirm Manual Payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4480,
+        -180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/finish' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, charge_ref: $('Confirm Manual Payment').first().json.charge_ref, plus_trial_eligible: $('Probe Plus Trial').first().json.plus_trial_eligible, plus_trial_checked: $('Probe Plus Trial').first().json.checked, plus_active: $('Probe Plus Trial').first().json.plus_active, data: $('Confirm Manual Payment').first().json.data } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-finish-manual",
+      "name": "Finish After Manual",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4800,
+        -180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/finish' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, charge_ref: $('Complete Payment').first().json.charge_ref, plus_trial_eligible: $('Probe Plus Trial').first().json.plus_trial_eligible, plus_trial_checked: $('Probe Plus Trial').first().json.checked, plus_active: $('Probe Plus Trial').first().json.plus_active, data: $('Complete Payment').first().json.data } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-finish",
+      "name": "Finish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3200,
+        180
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "Resolve Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Account": {
+      "main": [
+        [
+          {
+            "node": "Probe Plus Trial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probe Plus Trial": {
+      "main": [
+        [
+          {
+            "node": "Eligible?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eligible?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Checkout",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Not Eligible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Checkout": {
+      "main": [
+        [
+          {
+            "node": "Prepare Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Link": {
+      "main": [
+        [
+          {
+            "node": "Start Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Payment": {
+      "main": [
+        [
+          {
+            "node": "Complete Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complete Payment": {
+      "main": [
+        [
+          {
+            "node": "Manual Confirmation Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Confirmation Required?": {
+      "main": [
+        [
+          {
+            "node": "Build Manual Payment Poll Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Manual Payment Poll Items": {
+      "main": [
+        [
+          {
+            "node": "Loop Manual Payment Polls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Manual Payment Polls": {
+      "main": [
+        [
+          {
+            "node": "Fail Manual Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Manual Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Manual Payment": {
+      "main": [
+        [
+          {
+            "node": "Manual Payment Confirmed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Payment Confirmed?": {
+      "main": [
+        [
+          {
+            "node": "Confirm Manual Payment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Before Manual Recheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Before Manual Recheck": {
+      "main": [
+        [
+          {
+            "node": "Loop Manual Payment Polls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirm Manual Payment": {
+      "main": [
+        [
+          {
+            "node": "Finish After Manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all"
+  },
+  "tags": []
+}

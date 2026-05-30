@@ -29,6 +29,8 @@ type Config struct {
 	EnvelopeShortlinkTimeout   time.Duration
 	ChangePhoneCountrySync     bool
 	MinBalanceRp               int64
+	OTPWebhookListenAddr       string
+	OTPResumeURL               string
 }
 
 func ConfigFromEnv() Config {
@@ -51,5 +53,7 @@ func ConfigFromEnv() Config {
 		SignupInitiateJitterMax:    envx.NonNegativeDurationSeconds("GOPAY_SIGNUP_INITIATE_JITTER_MAX_SECONDS", 25*time.Second),
 		SignupRateLimitCooldown:    envx.NonNegativeDurationSeconds("GOPAY_SIGNUP_RATE_LIMIT_COOLDOWN_SECONDS", 900*time.Second),
 		MinBalanceRp:               1,
+		OTPWebhookListenAddr:       stringx.FirstNonEmpty(os.Getenv("GOPAY_OTP_WEBHOOK_LISTEN_ADDR"), ":8081"),
+		OTPResumeURL:               stringx.FirstNonEmpty(os.Getenv("GOPAY_OTP_RESUME_URL"), "http://127.0.0.1:8080/api/gpt/actions/gopay-wa-payment/resume-payment-otp"),
 	}
 }

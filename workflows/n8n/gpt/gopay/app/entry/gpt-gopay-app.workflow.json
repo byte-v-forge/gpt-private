@@ -7,9 +7,10 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "gpt/gopay-app",
-        "responseMode": "lastNode",
-        "responseData": "firstEntryJson",
-        "options": {}
+        "responseMode": "onReceived",
+        "options": {
+          "responseCode": 202
+        }
       },
       "id": "gpt-gopay-app-start-webhook",
       "name": "Start",
@@ -120,7 +121,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-auth"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-auth",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-auth-provision",
       "name": "Auth Provision",
@@ -136,7 +141,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-change-phone"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-change-phone",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-change-phone-provision",
       "name": "Change Phone Provision",
@@ -152,7 +161,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-app-deactivate"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-app-deactivate",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-deactivate-provision",
       "name": "Deactivate Provision",
@@ -168,7 +181,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-app-signup"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-app-signup",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-signup-provision",
       "name": "Signup Provision",
@@ -262,7 +279,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-auth"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-auth",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-login-user",
       "name": "Login User",
@@ -334,7 +355,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-app-signup"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-app-signup",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-signup-user",
       "name": "Signup User",
@@ -618,7 +643,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-change-phone"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-change-phone",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-change-phone-user",
       "name": "Change Phone User",
@@ -678,7 +707,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-auth"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-auth",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-auth-change-phone-user",
       "name": "Auth Change Phone User",
@@ -694,7 +727,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-auth"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-auth",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-auth-check-balance-user",
       "name": "Auth Check Balance User",
@@ -710,7 +747,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-auth"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-auth",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-auth-check-pin-user",
       "name": "Auth Check PIN User",
@@ -739,7 +780,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-app-pin"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-app-pin",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-ensure-pin-provision",
       "name": "Ensure PIN Provision",
@@ -765,7 +810,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-app-pin"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-app-pin",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-app-ensure-pin-user",
       "name": "Ensure PIN User",

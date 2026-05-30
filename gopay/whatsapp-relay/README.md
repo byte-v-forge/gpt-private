@@ -1,6 +1,6 @@
 # GoPay OTP Forwarder
 
-GoPay 场景使用的 Android OTP 通知转发器，把包含 OTP 的通知 POST 到 gpt-service 暴露的 webhook。
+GoPay 场景使用的 Android OTP 通知转发器，把包含 OTP 的通知 POST 到 gpt-service 内的 GoPay sidecar webhook；sidecar 再通过 GPT action API 唤醒等待中的 n8n workflow。
 
 默认 webhook payload：
 
@@ -45,7 +45,7 @@ gopay/whatsapp-relay/app/build/outputs/apk/debug/app-debug.apk
 3. 点击 `Open`，在系统通知访问设置里启用 `WhatsApp Forwarder`。
 4. 允许通知权限；应用会显示一条低优先级常驻通知，用于提高后台存活率。
 5. 点击 `Battery settings`，允许忽略电池优化；部分 ROM 还需要允许自启动、后台运行并锁定后台。
-6. 点击 `Test`，服务端 gpt-service 日志应出现 OTP accepted。
+6. 点击 `Test`，GoPay sidecar 日志应出现 webhook accepted 记录。
 
 说明：保活服务使用 `specialUse` 前台服务类型，适配 Android 15+ 的前台服务限制。开机广播会尝试重新绑定通知监听器并启动保活服务；如果厂商 ROM 拦截自启动，重启后手动打开一次应用即可恢复。
 

@@ -88,33 +88,6 @@
     },
     {
       "parameters": {
-        "jsCode": "const start = $('Start Deactivate').first().json;\nconst checks = Math.max(1, Math.ceil(Number(start.otp_timeout_seconds || 180) / 5));\nreturn Array.from({ length: checks }, (_, index) => ({ json: { attempt: index + 1, max_attempts: checks } }));"
-      },
-      "id": "gpt-gopay-app-deactivate-build-deactivate-otp-poll-items",
-      "name": "Build Deactivate OTP Poll Items",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        960,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "id": "gpt-gopay-app-deactivate-loop-deactivate-otp-polls",
-      "name": "Loop Deactivate OTP Polls",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        1280,
-        0
-      ]
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/finish-sms' }}",
         "sendBody": true,
@@ -135,78 +108,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/check-deactivate-otp' }}",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Start Deactivate').first().json.activation_id, otp_issued_after_unix: $('Start Deactivate').first().json.otp_issued_after_unix } }}",
-        "options": {}
-      },
-      "id": "gpt-gopay-app-deactivate-check-deactivate-otp",
-      "name": "Check Deactivate OTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1600,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "deactivate-otp-found-cond",
-              "leftValue": "={{ $json.otp_found === true }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "gpt-gopay-app-deactivate-deactivate-otp-found",
-      "name": "Deactivate OTP Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1920,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "amount": 5,
-        "unit": "seconds"
-      },
-      "id": "gpt-gopay-app-deactivate-wait-before-deactivate-otp-recheck",
-      "name": "Wait Before Deactivate OTP Recheck",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        2240,
-        180
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/complete-deactivate' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Start Deactivate').first().json.activation_id, state_json: $('Start Deactivate').first().json.state_json, otp_issued_after_unix: $('Start Deactivate').first().json.otp_issued_after_unix, otp_source: $json.otp_source } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Start Deactivate').first().json.activation_id, state_json: $('Start Deactivate').first().json.state_json, otp_issued_after_unix: $('Start Deactivate').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source } }}",
         "options": {}
       },
       "id": "gpt-gopay-app-deactivate-complete-deactivate",
@@ -302,6 +208,112 @@
         1920,
         -180
       ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/await-sms-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Start Deactivate').first().json.activation_id, otp_issued_after_unix: $('Start Deactivate').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start Deactivate').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_deactivate_sms_wait' } } }}",
+        "options": {}
+      },
+      "id": "app-await-deactivate-sms-otp",
+      "name": "Await Deactivate SMS OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-deactivate-sms-otp-already-available?",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-deactivate-sms-otp-already-available?",
+      "name": "Deactivate SMS OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "app-wait-for-deactivate-sms-otp-event",
+      "name": "Wait For Deactivate SMS OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-deactivate-sms-otp-event-received?",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-deactivate-sms-otp-event-received?",
+      "name": "Deactivate SMS OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        -120
+      ]
     }
   ],
   "connections": {
@@ -331,7 +343,7 @@
       "main": [
         [
           {
-            "node": "Build Deactivate OTP Poll Items",
+            "node": "Await Deactivate SMS OTP",
             "type": "main",
             "index": 0
           }
@@ -345,80 +357,11 @@
         ]
       ]
     },
-    "Build Deactivate OTP Poll Items": {
-      "main": [
-        [
-          {
-            "node": "Loop Deactivate OTP Polls",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop Deactivate OTP Polls": {
-      "main": [
-        [
-          {
-            "node": "Finish Deactivate SMS Timeout",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Check Deactivate OTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Finish Deactivate SMS Timeout": {
       "main": [
         [
           {
             "node": "Fail Deactivate OTP Timeout",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Deactivate OTP": {
-      "main": [
-        [
-          {
-            "node": "Deactivate OTP Found?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Deactivate OTP Found?": {
-      "main": [
-        [
-          {
-            "node": "Complete Deactivate",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait Before Deactivate OTP Recheck",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait Before Deactivate OTP Recheck": {
-      "main": [
-        [
-          {
-            "node": "Loop Deactivate OTP Polls",
             "type": "main",
             "index": 0
           }
@@ -448,6 +391,64 @@
         [
           {
             "node": "Fail Deactivate Not Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Deactivate SMS OTP": {
+      "main": [
+        [
+          {
+            "node": "Deactivate SMS OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deactivate SMS OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete Deactivate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Deactivate SMS OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Deactivate SMS OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Deactivate SMS OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deactivate SMS OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete Deactivate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Finish Deactivate SMS Timeout",
             "type": "main",
             "index": 0
           }

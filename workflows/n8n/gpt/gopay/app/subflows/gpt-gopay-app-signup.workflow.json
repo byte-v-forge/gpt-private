@@ -122,33 +122,6 @@
     },
     {
       "parameters": {
-        "jsCode": "const start = $('Start Signup').first().json;\nconst checks = Math.max(1, Math.ceil(Number(start.otp_timeout_seconds || 180) / 5));\nreturn Array.from({ length: checks }, (_, index) => ({ json: { attempt: index + 1, max_attempts: checks } }));"
-      },
-      "id": "gpt-gopay-app-signup-build-signup-otp-poll-items",
-      "name": "Build Signup OTP Poll Items",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1280,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "id": "gpt-gopay-app-signup-loop-signup-otp-polls",
-      "name": "Loop Signup OTP Polls",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        1600,
-        0
-      ]
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/retry-signup' }}",
         "sendBody": true,
@@ -169,78 +142,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/check-signup-otp' }}",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix } }}",
-        "options": {}
-      },
-      "id": "gpt-gopay-app-signup-check-signup-otp",
-      "name": "Check Signup OTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        1920,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "signup-otp-found?-cond",
-              "leftValue": "={{ $json.otp_found === true }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "gpt-gopay-app-signup-signup-otp-found",
-      "name": "Signup OTP Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2240,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "amount": 5,
-        "unit": "seconds"
-      },
-      "id": "gpt-gopay-app-signup-wait-before-signup-otp-recheck",
-      "name": "Wait Before Signup OTP Recheck",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        2560,
-        180
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/complete-signup' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, state_json: $('Start Signup').first().json.state_json, otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix, otp_source: $json.otp_source, data: { signup_start: $('Start Signup').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, state_json: $('Start Signup').first().json.state_json, otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { signup_start: $('Start Signup').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gpt-gopay-app-signup-complete-signup-with-otp",
@@ -375,33 +281,6 @@
     },
     {
       "parameters": {
-        "jsCode": "const retry = $('Retry Signup').first().json;\nconst checks = Math.max(1, Math.ceil(Number(retry.otp_timeout_seconds || $('Start Signup').first().json.otp_timeout_seconds || 180) / 5));\nreturn Array.from({ length: checks }, (_, index) => ({ json: { attempt: index + 1, max_attempts: checks } }));"
-      },
-      "id": "gpt-gopay-app-signup-build-signup-retry-otp-poll-items",
-      "name": "Build Signup Retry OTP Poll Items",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        4480,
-        -180
-      ]
-    },
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "id": "gpt-gopay-app-signup-loop-signup-retry-otp-polls",
-      "name": "Loop Signup Retry OTP Polls",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        4800,
-        -180
-      ]
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/fail' }}",
         "sendBody": true,
@@ -422,78 +301,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/check-signup-otp' }}",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Retry Signup').first().json.activation_id || $('Start Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel || $('Start Signup').first().json.otp_channel, otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix } }}",
-        "options": {}
-      },
-      "id": "gpt-gopay-app-signup-check-signup-retry-otp",
-      "name": "Check Signup Retry OTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        5120,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "signup-retry-otp-found?-cond",
-              "leftValue": "={{ $json.otp_found === true }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "gpt-gopay-app-signup-signup-retry-otp-found",
-      "name": "Signup Retry OTP Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        5440,
-        -180
-      ]
-    },
-    {
-      "parameters": {
-        "amount": 5,
-        "unit": "seconds"
-      },
-      "id": "gpt-gopay-app-signup-wait-before-signup-retry-otp-recheck",
-      "name": "Wait Before Signup Retry OTP Recheck",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        5760,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/complete-signup' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Retry Signup').first().json.activation_id || $('Start Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel || $('Start Signup').first().json.otp_channel, state_json: $('Retry Signup').first().json.state_json || $('Start Signup').first().json.state_json, otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix, otp_source: $json.otp_source, data: { signup_start: $('Start Signup').first().json, retry: $('Retry Signup').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Retry Signup').first().json.activation_id || $('Start Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel || $('Start Signup').first().json.otp_channel, state_json: $('Retry Signup').first().json.state_json || $('Start Signup').first().json.state_json, otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { signup_start: $('Start Signup').first().json, retry: $('Retry Signup').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gpt-gopay-app-signup-complete-signup-with-retry-otp",
@@ -570,6 +382,498 @@
         6400,
         180
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-otp-channel-sms?",
+              "leftValue": "={{ $('Start Signup').first().json.otp_channel === 'sms' }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-otp-channel-sms?",
+      "name": "Signup OTP Channel SMS?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1280,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/await-sms-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start Signup').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_signup' } } }}",
+        "options": {}
+      },
+      "id": "app-await-signup-sms-otp",
+      "name": "Await Signup SMS OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-sms-otp-already-available?",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-sms-otp-already-available?",
+      "name": "Signup SMS OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "app-wait-for-signup-sms-otp-event",
+      "name": "Wait For Signup SMS OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2240,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-sms-otp-event-received?",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-sms-otp-event-received?",
+      "name": "Signup SMS OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2560,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-retry-otp-channel-sms?",
+              "leftValue": "={{ ($('Retry Signup').first().json.otp_channel || $('Start Signup').first().json.otp_channel) === 'sms' }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-retry-otp-channel-sms?",
+      "name": "Signup Retry OTP Channel SMS?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/await-sms-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, activation_id: $('Retry Signup').first().json.activation_id || $('Start Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel || $('Start Signup').first().json.otp_channel, otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Retry Signup').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_signup_retry' } } }}",
+        "options": {}
+      },
+      "id": "app-await-signup-retry-sms-otp",
+      "name": "Await Signup Retry SMS OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4480,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-retry-sms-otp-already-available?",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-retry-sms-otp-already-available?",
+      "name": "Signup Retry SMS OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4800,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "app-wait-for-signup-retry-sms-otp-event",
+      "name": "Wait For Signup Retry SMS OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        5120,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-retry-sms-otp-event-received?",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-retry-sms-otp-event-received?",
+      "name": "Signup Retry SMS OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5440,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/await-payment-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, source: $('When Executed by GoPay App').first().json.user_id, purpose: 'gopay', otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start Signup').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_signup' } } }}",
+        "options": {}
+      },
+      "id": "app-signup-wa-otp-await",
+      "name": "Await Signup WA OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-wa-otp-already-available",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-wa-otp-already-available",
+      "name": "Signup WA OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "app-signup-wa-otp-wait-event",
+      "name": "Wait For Signup WA OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2240,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-wa-otp-event-received",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-wa-otp-event-received",
+      "name": "Signup WA OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2560,
+        540
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-app/await-payment-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay App').first().json.job_id, n8n_execution_id: $('When Executed by GoPay App').first().json.n8n_execution_id, operation: $('When Executed by GoPay App').first().json.operation, user_id: $('When Executed by GoPay App').first().json.user_id, source: $('When Executed by GoPay App').first().json.user_id, purpose: 'gopay', otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Retry Signup').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_signup_retry' } } }}",
+        "options": {}
+      },
+      "id": "app-signup-retry-wa-otp-await",
+      "name": "Await Signup Retry WA OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4480,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-retry-wa-otp-already-available",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-retry-wa-otp-already-available",
+      "name": "Signup Retry WA OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4800,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "app-signup-retry-wa-otp-wait-event",
+      "name": "Wait For Signup Retry WA OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        5120,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "app-signup-retry-wa-otp-event-received",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "app-signup-retry-wa-otp-event-received",
+      "name": "Signup Retry WA OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5440,
+        360
+      ]
     }
   ],
   "connections": {
@@ -617,7 +921,7 @@
       "main": [
         [
           {
-            "node": "Build Signup OTP Poll Items",
+            "node": "Signup OTP Channel SMS?",
             "type": "main",
             "index": 0
           }
@@ -625,75 +929,6 @@
         [
           {
             "node": "Fail Signup Missing OTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Signup OTP Poll Items": {
-      "main": [
-        [
-          {
-            "node": "Loop Signup OTP Polls",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop Signup OTP Polls": {
-      "main": [
-        [
-          {
-            "node": "Retry Signup",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Check Signup OTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Signup OTP": {
-      "main": [
-        [
-          {
-            "node": "Signup OTP Found?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Signup OTP Found?": {
-      "main": [
-        [
-          {
-            "node": "Complete Signup With OTP",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait Before Signup OTP Recheck",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait Before Signup OTP Recheck": {
-      "main": [
-        [
-          {
-            "node": "Loop Signup OTP Polls",
             "type": "main",
             "index": 0
           }
@@ -780,76 +1015,7 @@
       "main": [
         [
           {
-            "node": "Build Signup Retry OTP Poll Items",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Signup Retry OTP Poll Items": {
-      "main": [
-        [
-          {
-            "node": "Loop Signup Retry OTP Polls",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop Signup Retry OTP Polls": {
-      "main": [
-        [
-          {
-            "node": "Fail Signup OTP Timeout",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Check Signup Retry OTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Signup Retry OTP": {
-      "main": [
-        [
-          {
-            "node": "Signup Retry OTP Found?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Signup Retry OTP Found?": {
-      "main": [
-        [
-          {
-            "node": "Complete Signup With Retry OTP",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait Before Signup Retry OTP Recheck",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait Before Signup Retry OTP Recheck": {
-      "main": [
-        [
-          {
-            "node": "Loop Signup Retry OTP Polls",
+            "node": "Signup Retry OTP Channel SMS?",
             "type": "main",
             "index": 0
           }
@@ -879,6 +1045,274 @@
         [
           {
             "node": "Fail Signup Not Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup OTP Channel SMS?": {
+      "main": [
+        [
+          {
+            "node": "Await Signup SMS OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Await Signup WA OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Signup SMS OTP": {
+      "main": [
+        [
+          {
+            "node": "Signup SMS OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup SMS OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete Signup With OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Signup SMS OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Signup SMS OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Signup SMS OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup SMS OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete Signup With OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Signup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup Retry OTP Channel SMS?": {
+      "main": [
+        [
+          {
+            "node": "Await Signup Retry SMS OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Await Signup Retry WA OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Signup Retry SMS OTP": {
+      "main": [
+        [
+          {
+            "node": "Signup Retry SMS OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup Retry SMS OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete Signup With Retry OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Signup Retry SMS OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Signup Retry SMS OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Signup Retry SMS OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup Retry SMS OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete Signup With Retry OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Signup OTP Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Signup WA OTP": {
+      "main": [
+        [
+          {
+            "node": "Signup WA OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup WA OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete Signup With OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Signup WA OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Signup WA OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Signup WA OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup WA OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete Signup With OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry Signup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Signup Retry WA OTP": {
+      "main": [
+        [
+          {
+            "node": "Signup Retry WA OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup Retry WA OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete Signup With Retry OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Signup Retry WA OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Signup Retry WA OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Signup Retry WA OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signup Retry WA OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete Signup With Retry OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Signup OTP Timeout",
             "type": "main",
             "index": 0
           }

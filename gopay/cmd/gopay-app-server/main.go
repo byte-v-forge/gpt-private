@@ -18,6 +18,11 @@ func main() {
 		log.Fatalf("init gopay app service: %v", err)
 	}
 	defer func() { _ = service.Close() }()
+	otpWebhook, err := appsvc.StartOTPWebhook(cfg.OTPWebhookListenAddr, cfg.OTPResumeURL)
+	if err != nil {
+		log.Fatalf("start gopay otp webhook: %v", err)
+	}
+	defer func() { _ = otpWebhook.Close() }()
 	listener, err := net.Listen("tcp", ":"+cfg.Port)
 	if err != nil {
 		log.Fatalf("listen gopay app service: %v", err)

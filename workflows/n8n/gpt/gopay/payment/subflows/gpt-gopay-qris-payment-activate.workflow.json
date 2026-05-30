@@ -7,9 +7,10 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "gpt/gopay-qris-payment-activate",
-        "responseMode": "lastNode",
-        "responseData": "firstEntryJson",
-        "options": {}
+        "responseMode": "onReceived",
+        "options": {
+          "responseCode": 202
+        }
       },
       "id": "gpt-gopay-qris-payment-activate-start-webhook",
       "name": "Start",

@@ -384,33 +384,6 @@
     },
     {
       "parameters": {
-        "jsCode": "const current = $input.first().json;\nconst timeout = Math.max(1, Number(current.otp_timeout_seconds || 180));\nconst intervalSeconds = 5;\nconst checks = Math.max(1, Math.ceil(timeout / intervalSeconds));\nreturn Array.from({ length: checks }, (_, index) => ({\n  json: {\n    ...current,\n    poll_attempt: index + 1,\n    max_poll_attempts: checks,\n  },\n}));"
-      },
-      "id": "gpt-gopay-change-phone-build-otp-poll-items",
-      "name": "Build Change Phone OTP Poll Items",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        3840,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "id": "gpt-gopay-change-phone-loop-otp-polls",
-      "name": "Loop Change Phone OTP Polls",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        4160,
-        0
-      ]
-    },
-    {
-      "parameters": {
         "jsCode": "return [{ json: { exhausted: true } }];"
       },
       "id": "gpt-gopay-change-phone-continue-otp-send-attempt",
@@ -425,81 +398,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-app').toLowerCase().replace(/_/g, '-') + '/check-change-phone-otp' }}",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, user_id: $('When Executed by GoPay Change Phone').first().json.user_id, activation_id: $json.activation_id, phone: $json.phone, state_json: $json.state_json || '{}', failure_count: $json.failure_count || 0, otp_issued_after_unix: $json.otp_issued_after_unix } }}",
-        "options": {}
-      },
-      "id": "gpt-gopay-change-phone-check-otp",
-      "name": "Check Change Phone OTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        4480,
-        0
-      ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 5000
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "gpt-gopay-change-phone-otp-found-cond",
-              "leftValue": "={{ $json.otp_found === true }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "gpt-gopay-change-phone-otp-found",
-      "name": "Change Phone OTP Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        4800,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "amount": 5,
-        "unit": "seconds"
-      },
-      "id": "gpt-gopay-change-phone-wait-before-otp-recheck",
-      "name": "Wait Before Change Phone OTP Recheck",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1.1,
-      "position": [
-        5120,
-        180
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-app').toLowerCase().replace(/_/g, '-') + '/complete-change-phone' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, user_id: $('When Executed by GoPay Change Phone').first().json.user_id, activation_id: $json.activation_id, phone: $json.phone, state_json: $json.state_json || '{}', failure_count: $json.failure_count || 0, otp_issued_after_unix: $json.otp_issued_after_unix, otp_source: $json.otp_source } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, user_id: $('When Executed by GoPay Change Phone').first().json.user_id, activation_id: $json.activation_id, phone: $json.phone, state_json: $json.state_json || '{}', failure_count: $json.failure_count || 0, otp_issued_after_unix: $json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source } }}",
         "options": {}
       },
       "id": "gpt-gopay-change-phone-complete",
@@ -638,6 +541,112 @@
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-app').toLowerCase().replace(/_/g, '-') + '/await-sms-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, user_id: $('When Executed by GoPay Change Phone').first().json.user_id, activation_id: $json.activation_id, phone: $json.phone, otp_issued_after_unix: $json.otp_issued_after_unix, otp_timeout_seconds: $json.otp_timeout_seconds || 180, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_change_phone_sms_wait' } } }}",
+        "options": {}
+      },
+      "id": "change-phone-await-sms-otp",
+      "name": "Await Change Phone SMS OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "change-phone-sms-otp-already-available?",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "change-phone-sms-otp-already-available?",
+      "name": "Change Phone SMS OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4160,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 3,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "change-phone-wait-for-sms-otp-event",
+      "name": "Wait For Change Phone SMS OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4480,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "change-phone-sms-otp-event-received?",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "change-phone-sms-otp-event-received?",
+      "name": "Change Phone SMS OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4800,
+        -220
+      ]
     }
   ],
   "connections": {
@@ -794,7 +803,7 @@
       "main": [
         [
           {
-            "node": "Build Change Phone OTP Poll Items",
+            "node": "Await Change Phone SMS OTP",
             "type": "main",
             "index": 0
           }
@@ -823,7 +832,7 @@
       "main": [
         [
           {
-            "node": "Build Change Phone OTP Poll Items",
+            "node": "Await Change Phone SMS OTP",
             "type": "main",
             "index": 0
           }
@@ -848,80 +857,11 @@
         ]
       ]
     },
-    "Build Change Phone OTP Poll Items": {
-      "main": [
-        [
-          {
-            "node": "Loop Change Phone OTP Polls",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop Change Phone OTP Polls": {
-      "main": [
-        [
-          {
-            "node": "Continue OTP Send Attempt",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Check Change Phone OTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Continue OTP Send Attempt": {
       "main": [
         [
           {
             "node": "Loop OTP Send Attempts",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Change Phone OTP": {
-      "main": [
-        [
-          {
-            "node": "Change Phone OTP Found?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Change Phone OTP Found?": {
-      "main": [
-        [
-          {
-            "node": "Complete Change Phone",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait Before Change Phone OTP Recheck",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait Before Change Phone OTP Recheck": {
-      "main": [
-        [
-          {
-            "node": "Loop Change Phone OTP Polls",
             "type": "main",
             "index": 0
           }
@@ -980,6 +920,64 @@
         [
           {
             "node": "Loop Change Phone Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Change Phone SMS OTP": {
+      "main": [
+        [
+          {
+            "node": "Change Phone SMS OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change Phone SMS OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete Change Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Change Phone SMS OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Change Phone SMS OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Change Phone SMS OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Change Phone SMS OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete Change Phone",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Continue OTP Send Attempt",
             "type": "main",
             "index": 0
           }

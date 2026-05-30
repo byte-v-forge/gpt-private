@@ -170,33 +170,6 @@
     },
     {
       "parameters": {
-        "jsCode": "const start = $('Start GoPay Auth').first().json;\nconst checks = Math.max(1, Math.ceil(Number(start.otp_timeout_seconds || 180) / 5));\nreturn Array.from({ length: checks }, (_, index) => ({ json: { attempt: index + 1, max_attempts: checks } }));"
-      },
-      "id": "gpt-gopay-auth-build-auth-otp-poll-items",
-      "name": "Build Auth OTP Poll Items",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1920,
-        160
-      ]
-    },
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "id": "gpt-gopay-auth-loop-auth-otp-polls",
-      "name": "Loop Auth OTP Polls",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        2240,
-        160
-      ]
-    },
-    {
-      "parameters": {
         "amount": 10,
         "unit": "seconds"
       },
@@ -213,82 +186,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/check-gopay-auth-otp' }}",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, activation_id: $('When Executed by Activation Workflow').first().json.activation_id, otp_channel: $('Start GoPay Auth').first().json.otp_channel, otp_issued_after_unix: $('Start GoPay Auth').first().json.otp_issued_after_unix } }}",
-        "options": {}
-      },
-      "id": "gpt-gopay-auth-check-auth-otp",
-      "name": "Check Auth OTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        2560,
-        160
-      ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 5000
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "auth-otp-found-cond",
-              "leftValue": "={{ $json.otp_found === true }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "gpt-gopay-auth-auth-otp-found",
-      "name": "Auth OTP Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        2880,
-        160
-      ]
-    },
-    {
-      "parameters": {
-        "amount": 10,
-        "unit": "seconds"
-      },
-      "id": "gpt-gopay-auth-wait-before-auth-otp-recheck",
-      "name": "Wait Before Auth OTP Recheck",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1,
-      "position": [
-        3200,
-        360
-      ],
-      "webhookId": "byte-v-forge-gpt-gopay-auth-wait-before-auth-otp-recheck"
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/complete-gopay-auth' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, phone: $('When Executed by Activation Workflow').first().json.phone, wa_phone: $('When Executed by Activation Workflow').first().json.wa_phone, activation_id: $('When Executed by Activation Workflow').first().json.activation_id, otp_channel: $('Start GoPay Auth').first().json.otp_channel, state_json: $('Start GoPay Auth').first().json.state_json, otp_issued_after_unix: $('Start GoPay Auth').first().json.otp_issued_after_unix, otp_source: $json.otp_source, data: { auth_start: $('Start GoPay Auth').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, phone: $('When Executed by Activation Workflow').first().json.phone, wa_phone: $('When Executed by Activation Workflow').first().json.wa_phone, activation_id: $('When Executed by Activation Workflow').first().json.activation_id, otp_channel: $('Start GoPay Auth').first().json.otp_channel, state_json: $('Start GoPay Auth').first().json.state_json, otp_issued_after_unix: $('Start GoPay Auth').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { auth_start: $('Start GoPay Auth').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gpt-gopay-auth-complete-gopay-auth",
@@ -442,33 +344,6 @@
     },
     {
       "parameters": {
-        "jsCode": "const start = $('Start GoPay PIN').first().json;\nconst checks = Math.max(1, Math.ceil(Number(start.otp_timeout_seconds || 180) / 5));\nreturn Array.from({ length: checks }, (_, index) => ({ json: { attempt: index + 1, max_attempts: checks } }));"
-      },
-      "id": "gpt-gopay-auth-build-pin-otp-poll-items",
-      "name": "Build PIN OTP Poll Items",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        5440,
-        -120
-      ]
-    },
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "id": "gpt-gopay-auth-loop-pin-otp-polls",
-      "name": "Loop PIN OTP Polls",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        5760,
-        -120
-      ]
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/retry-gopay-pin' }}",
         "sendBody": true,
@@ -492,82 +367,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/check-gopay-pin-otp' }}",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, activation_id: $('When Executed by Activation Workflow').first().json.activation_id, otp_channel: $('Start GoPay PIN').first().json.otp_channel, otp_issued_after_unix: $('Start GoPay PIN').first().json.otp_issued_after_unix } }}",
-        "options": {}
-      },
-      "id": "gpt-gopay-auth-check-pin-otp",
-      "name": "Check PIN OTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        6080,
-        -120
-      ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 5000
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "pin-otp-found-cond",
-              "leftValue": "={{ $json.otp_found === true }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "gpt-gopay-auth-pin-otp-found",
-      "name": "PIN OTP Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        6400,
-        -120
-      ]
-    },
-    {
-      "parameters": {
-        "amount": 10,
-        "unit": "seconds"
-      },
-      "id": "gpt-gopay-auth-wait-before-pin-otp-recheck",
-      "name": "Wait Before PIN OTP Recheck",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1,
-      "position": [
-        6720,
-        80
-      ],
-      "webhookId": "byte-v-forge-gpt-gopay-auth-wait-before-pin-otp-recheck"
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/complete-gopay-pin' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, activation_id: $('When Executed by Activation Workflow').first().json.activation_id, otp_channel: $('Start GoPay PIN').first().json.otp_channel, state_json: $('Start GoPay PIN').first().json.state_json, otp_issued_after_unix: $('Start GoPay PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source, data: { pin_start: $('Start GoPay PIN').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, activation_id: $('When Executed by Activation Workflow').first().json.activation_id, otp_channel: $('Start GoPay PIN').first().json.otp_channel, state_json: $('Start GoPay PIN').first().json.state_json, otp_issued_after_unix: $('Start GoPay PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start GoPay PIN').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gpt-gopay-auth-complete-gopay-pin",
@@ -751,6 +555,498 @@
         4120,
         -480
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-auth-otp-channel-sms?",
+              "leftValue": "={{ $('Start GoPay Auth').first().json.otp_channel === 'sms' }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-auth-otp-channel-sms?",
+      "name": "Auth OTP Channel SMS?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/await-sms-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, activation_id: $('When Executed by Activation Workflow').first().json.activation_id, otp_channel: $('Start GoPay Auth').first().json.otp_channel, otp_issued_after_unix: $('Start GoPay Auth').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start GoPay Auth').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_login' } } }}",
+        "options": {}
+      },
+      "id": "gopay-auth-await-sms-otp",
+      "name": "Await Auth SMS OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-auth-sms-otp-already-available?",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-auth-sms-otp-already-available?",
+      "name": "Auth SMS OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2560,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "gopay-auth-wait-for-sms-otp-event",
+      "name": "Wait For Auth SMS OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-auth-sms-otp-event-received?",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-auth-sms-otp-event-received?",
+      "name": "Auth SMS OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3200,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-pin-otp-channel-sms?",
+              "leftValue": "={{ $('Start GoPay PIN').first().json.otp_channel === 'sms' }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-pin-otp-channel-sms?",
+      "name": "PIN OTP Channel SMS?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5440,
+        -120
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/await-sms-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, activation_id: $('When Executed by Activation Workflow').first().json.activation_id, otp_channel: $('Start GoPay PIN').first().json.otp_channel, otp_issued_after_unix: $('Start GoPay PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start GoPay PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
+        "options": {}
+      },
+      "id": "gopay-pin-await-sms-otp",
+      "name": "Await PIN SMS OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5760,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-pin-sms-otp-already-available?",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-pin-sms-otp-already-available?",
+      "name": "PIN SMS OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6080,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "gopay-pin-wait-for-sms-otp-event",
+      "name": "Wait For PIN SMS OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        6400,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-pin-sms-otp-event-received?",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-pin-sms-otp-event-received?",
+      "name": "PIN SMS OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6720,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/await-payment-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, source: $('When Executed by Activation Workflow').first().json.user_id, purpose: 'gopay', otp_issued_after_unix: $('Start GoPay Auth').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start GoPay Auth').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_login' } } }}",
+        "options": {}
+      },
+      "id": "gopay-auth-wa-otp-await",
+      "name": "Await Auth WA OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-auth-wa-otp-already-available",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-auth-wa-otp-already-available",
+      "name": "Auth WA OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2560,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "gopay-auth-wa-otp-wait-event",
+      "name": "Wait For Auth WA OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2880,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-auth-wa-otp-event-received",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-auth-wa-otp-event-received",
+      "name": "Auth WA OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3200,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + ($('When Executed by Activation Workflow').first().json.action_scope || $('When Executed by Activation Workflow').first().json.action || 'activate') + '/await-payment-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('When Executed by Activation Workflow').first().json.job_id, account_id: $('When Executed by Activation Workflow').first().json.account_id, n8n_execution_id: $('When Executed by Activation Workflow').first().json.n8n_execution_id, operation: $('When Executed by Activation Workflow').first().json.operation, user_id: $('When Executed by Activation Workflow').first().json.user_id, source: $('When Executed by Activation Workflow').first().json.user_id, purpose: 'gopay', otp_issued_after_unix: $('Start GoPay PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start GoPay PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
+        "options": {}
+      },
+      "id": "gopay-pin-wa-otp-await",
+      "name": "Await PIN WA OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5760,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-pin-wa-otp-already-available",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-pin-wa-otp-already-available",
+      "name": "PIN WA OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6080,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "gopay-pin-wa-otp-wait-event",
+      "name": "Wait For PIN WA OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        6400,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gopay-pin-wa-otp-event-received",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gopay-pin-wa-otp-event-received",
+      "name": "PIN WA OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6720,
+        260
+      ]
     }
   ],
   "connections": {
@@ -827,7 +1123,7 @@
       "main": [
         [
           {
-            "node": "Build Auth OTP Poll Items",
+            "node": "Auth OTP Channel SMS?",
             "type": "main",
             "index": 0
           }
@@ -852,80 +1148,11 @@
         ]
       ]
     },
-    "Build Auth OTP Poll Items": {
-      "main": [
-        [
-          {
-            "node": "Loop Auth OTP Polls",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop Auth OTP Polls": {
-      "main": [
-        [
-          {
-            "node": "Wait Before Auth OTP Retry",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Check Auth OTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Wait Before Auth OTP Retry": {
       "main": [
         [
           {
             "node": "Loop Auth Attempts",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Auth OTP": {
-      "main": [
-        [
-          {
-            "node": "Auth OTP Found?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Auth OTP Found?": {
-      "main": [
-        [
-          {
-            "node": "Complete GoPay Auth",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait Before Auth OTP Recheck",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait Before Auth OTP Recheck": {
-      "main": [
-        [
-          {
-            "node": "Loop Auth OTP Polls",
             "type": "main",
             "index": 0
           }
@@ -1005,7 +1232,7 @@
       "main": [
         [
           {
-            "node": "Build PIN OTP Poll Items",
+            "node": "PIN OTP Channel SMS?",
             "type": "main",
             "index": 0
           }
@@ -1013,35 +1240,6 @@
         [
           {
             "node": "Build PIN Failure",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build PIN OTP Poll Items": {
-      "main": [
-        [
-          {
-            "node": "Loop PIN OTP Polls",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop PIN OTP Polls": {
-      "main": [
-        [
-          {
-            "node": "Retry GoPay PIN",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Check PIN OTP",
             "type": "main",
             "index": 0
           }
@@ -1064,46 +1262,6 @@
         [
           {
             "node": "Start GoPay PIN",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check PIN OTP": {
-      "main": [
-        [
-          {
-            "node": "PIN OTP Found?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "PIN OTP Found?": {
-      "main": [
-        [
-          {
-            "node": "Complete GoPay PIN",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait Before PIN OTP Recheck",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait Before PIN OTP Recheck": {
-      "main": [
-        [
-          {
-            "node": "Loop PIN OTP Polls",
             "type": "main",
             "index": 0
           }
@@ -1151,6 +1309,274 @@
         [
           {
             "node": "Normalize Token Auth Only Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth OTP Channel SMS?": {
+      "main": [
+        [
+          {
+            "node": "Await Auth SMS OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Await Auth WA OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Auth SMS OTP": {
+      "main": [
+        [
+          {
+            "node": "Auth SMS OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth SMS OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete GoPay Auth",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Auth SMS OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Auth SMS OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Auth SMS OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth SMS OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete GoPay Auth",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Before Auth OTP Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN OTP Channel SMS?": {
+      "main": [
+        [
+          {
+            "node": "Await PIN SMS OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Await PIN WA OTP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await PIN SMS OTP": {
+      "main": [
+        [
+          {
+            "node": "PIN SMS OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN SMS OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete GoPay PIN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For PIN SMS OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For PIN SMS OTP Event": {
+      "main": [
+        [
+          {
+            "node": "PIN SMS OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN SMS OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete GoPay PIN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry GoPay PIN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Auth WA OTP": {
+      "main": [
+        [
+          {
+            "node": "Auth WA OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth WA OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete GoPay Auth",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Auth WA OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Auth WA OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Auth WA OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auth WA OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete GoPay Auth",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait Before Auth OTP Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await PIN WA OTP": {
+      "main": [
+        [
+          {
+            "node": "PIN WA OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN WA OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete GoPay PIN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For PIN WA OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For PIN WA OTP Event": {
+      "main": [
+        [
+          {
+            "node": "PIN WA OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PIN WA OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete GoPay PIN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retry GoPay PIN",
             "type": "main",
             "index": 0
           }

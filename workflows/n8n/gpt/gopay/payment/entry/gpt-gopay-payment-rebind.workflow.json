@@ -7,9 +7,10 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "gpt/gopay-payment-rebind",
-        "responseMode": "lastNode",
-        "responseData": "firstEntryJson",
-        "options": {}
+        "responseMode": "onReceived",
+        "options": {
+          "responseCode": 202
+        }
       },
       "id": "gpt-gopay-payment-rebind-start-webhook",
       "name": "Start",
@@ -108,7 +109,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-auth"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-auth",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-payment-rebind-auth",
       "name": "Auth",
@@ -124,7 +129,11 @@
     },
     {
       "parameters": {
-        "workflowId": "gpt-gopay-change-phone"
+        "workflowId": {
+          "__rl": true,
+          "value": "gpt-gopay-change-phone",
+          "mode": "id"
+        }
       },
       "id": "gpt-gopay-payment-rebind-change-phone",
       "name": "Change Phone",

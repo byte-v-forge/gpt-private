@@ -7,9 +7,10 @@
       "parameters": {
         "httpMethod": "POST",
         "path": "gpt/gopay-wa-payment",
-        "responseMode": "lastNode",
-        "responseData": "firstEntryJson",
-        "options": {}
+        "responseMode": "onReceived",
+        "options": {
+          "responseCode": 202
+        }
       },
       "id": "gpt-gopay-wa-payment-start-webhook",
       "name": "Start",
@@ -305,34 +306,6 @@
     },
     {
       "parameters": {
-        "mode": "runOnceForAllItems",
-        "jsCode": "const start = $('Start Payment').first().json;\nconst timeoutSeconds = Math.max(70, Number(start.otp_timeout_seconds || 300));\nconst intervalSeconds = 70;\nconst maxAttempts = Math.ceil(timeoutSeconds / intervalSeconds);\nreturn Array.from({ length: maxAttempts }, (_, index) => ({ json: {\n  attempt: index + 1,\n  max_attempts: maxAttempts,\n  interval_seconds: intervalSeconds,\n  deadline_seconds: timeoutSeconds,\n  flow_id: start.flow_id,\n  user_id: start.user_id,\n  otp_issued_after_unix: start.otp_issued_after_unix,\n}}));"
-      },
-      "id": "gpt-gopay-wa-payment-build-otp-poll-items",
-      "name": "Build OTP Poll Items",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        3200,
-        -180
-      ]
-    },
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "id": "gpt-gopay-wa-payment-loop-otp-polls",
-      "name": "Loop OTP Polls",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        3520,
-        -180
-      ]
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-wa-payment/fail' }}",
         "sendBody": true,
@@ -353,79 +326,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-wa-payment/check-payment-otp' }}",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, user_id: $('Resolve WA Phone').first().json.user_id, otp_issued_after_unix: $('Start Payment').first().json.otp_issued_after_unix, data: $json } }}",
-        "options": {}
-      },
-      "id": "gpt-gopay-wa-payment-check-payment-otp",
-      "name": "Check Payment OTP",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        3840,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "otp-found-cond",
-              "leftValue": "={{ $json.otp_found }}",
-              "rightValue": true,
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "gpt-gopay-wa-payment-otp-found",
-      "name": "OTP Found?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        4160,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "amount": 70,
-        "unit": "seconds"
-      },
-      "id": "gpt-gopay-wa-payment-wait-otp-recheck",
-      "name": "Wait Before OTP Recheck",
-      "type": "n8n-nodes-base.wait",
-      "typeVersion": 1,
-      "position": [
-        4480,
-        180
-      ],
-      "webhookId": "byte-v-forge-gpt-gopay-wa-payment-wait-otp-recheck"
-    },
-    {
-      "parameters": {
-        "method": "POST",
         "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-wa-payment/complete-payment' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Start Payment').first().json.flow_id, state_json: $('Start Payment').first().json.state_json, use_account_token: $('Start Payment').first().json.use_account_token, otp_required: true, otp_issued_after_unix: $('Start Payment').first().json.otp_issued_after_unix, otp_source: $json.otp_source, data: $('Start Payment').first().json.data } }}",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Start Payment').first().json.flow_id, state_json: $('Start Payment').first().json.state_json, use_account_token: $('Start Payment').first().json.use_account_token, otp_required: true, otp_issued_after_unix: $('Start Payment').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: $('Start Payment').first().json.data } }}",
         "options": {}
       },
       "id": "gpt-gopay-wa-payment-complete-payment-with-otp",
@@ -461,6 +366,112 @@
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-wa-payment/await-payment-otp' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, user_id: $('Resolve WA Phone').first().json.user_id, source: $('Resolve WA Phone').first().json.user_id, purpose: 'gopay', otp_issued_after_unix: $('Start Payment').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start Payment').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_payment' } } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-wa-payment-otp-await",
+      "name": "Await Payment WA OTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3200,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-wa-payment-otp-already-available",
+              "leftValue": "={{ Boolean($json.otp_source || $json.data?.otp_source || $json.body?.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-wa-payment-otp-already-available",
+      "name": "Payment WA OTP Already Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "limitWaitTime": true,
+        "limitType": "afterTimeInterval",
+        "resumeAmount": 5,
+        "resumeUnit": "minutes",
+        "options": {}
+      },
+      "id": "gpt-gopay-wa-payment-otp-wait-event",
+      "name": "Wait For Payment WA OTP Event",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3840,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-wa-payment-otp-event-received",
+              "leftValue": "={{ Boolean($json.body?.otp_source || $json.otp_source) }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-wa-payment-otp-event-received",
+      "name": "Payment WA OTP Event Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4160,
+        -40
+      ]
     }
   ],
   "connections": {
@@ -574,7 +585,7 @@
       "main": [
         [
           {
-            "node": "Build OTP Poll Items",
+            "node": "Await Payment WA OTP",
             "type": "main",
             "index": 0
           }
@@ -582,75 +593,6 @@
         [
           {
             "node": "Complete Payment Without OTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build OTP Poll Items": {
-      "main": [
-        [
-          {
-            "node": "Loop OTP Polls",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Loop OTP Polls": {
-      "main": [
-        [
-          {
-            "node": "Fail OTP Timeout",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Check Payment OTP",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Check Payment OTP": {
-      "main": [
-        [
-          {
-            "node": "OTP Found?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OTP Found?": {
-      "main": [
-        [
-          {
-            "node": "Complete Payment With OTP",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Wait Before OTP Recheck",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Wait Before OTP Recheck": {
-      "main": [
-        [
-          {
-            "node": "Loop OTP Polls",
             "type": "main",
             "index": 0
           }
@@ -673,6 +615,64 @@
         [
           {
             "node": "Finish",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Await Payment WA OTP": {
+      "main": [
+        [
+          {
+            "node": "Payment WA OTP Already Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment WA OTP Already Available?": {
+      "main": [
+        [
+          {
+            "node": "Complete Payment With OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait For Payment WA OTP Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Payment WA OTP Event": {
+      "main": [
+        [
+          {
+            "node": "Payment WA OTP Event Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment WA OTP Event Received?": {
+      "main": [
+        [
+          {
+            "node": "Complete Payment With OTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail OTP Timeout",
             "type": "main",
             "index": 0
           }

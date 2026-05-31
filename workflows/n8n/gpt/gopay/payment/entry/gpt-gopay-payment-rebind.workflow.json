@@ -92,7 +92,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Source').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, user_id: $('Resolve Source').first().json.user_id } }}",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Source').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, gopay_account_id: $('Resolve Source').first().json.gopay_account_id } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-rebind-load-state",
@@ -111,7 +111,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "gpt-gopay-auth",
+          "value": "gpt-gopay-payment-auth",
           "mode": "id"
         }
       },
@@ -131,7 +131,7 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "gpt-gopay-change-phone",
+          "value": "gpt-gopay-payment-change-phone",
           "mode": "id"
         }
       },
@@ -154,7 +154,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Source').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, user_id: $('Resolve Source').first().json.user_id, activation_id: $('Change Phone').first().json.activation_id, phone: $('Change Phone').first().json.phone, data: { rebind_source: $('Resolve Source').first().json.data, load_state: $('Load State').first().json.data, auth: $('Auth').first().json.data, change_phone: $('Change Phone').first().json.data } } }}",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Source').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, gopay_account_id: $('Resolve Source').first().json.gopay_account_id, activation_id: $('Change Phone').first().json.activation_id, phone: $('Change Phone').first().json.phone, data: { rebind_source: $('Resolve Source').first().json.data, load_state: $('Load State').first().json.data, auth: $('Auth').first().json.data, change_phone: $('Change Phone').first().json.data } } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-rebind-finish",

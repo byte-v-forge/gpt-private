@@ -100,12 +100,9 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        960,
+        2240,
         0
-      ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 5000
+      ]
     },
     {
       "parameters": {
@@ -137,7 +134,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1280,
+        2560,
         0
       ]
     },
@@ -156,7 +153,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1600,
+        2880,
         0
       ],
       "retryOnFail": true,
@@ -178,7 +175,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1600,
+        2880,
         180
       ]
     },
@@ -197,7 +194,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1920,
+        3200,
         0
       ],
       "retryOnFail": true,
@@ -207,11 +204,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/start-payment' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/start-payment' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $('Prepare Link').first().json.flow_id, state_json: $('Prepare Link').first().json.state_json } }}",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, gopay_account_id: $('Resolve Account').first().json.gopay_account_id || $('Resolve Account').first().json.data?.gopay_account_id, flow_id: $('Prepare Link').first().json.flow_id, snap_token: $('Prepare Link').first().json.snap_token, checkout_url: $('Prepare Link').first().json.checkout_url, checkout_session_id: $('Prepare Link').first().json.checkout_session_id, tokenization: 'qris', amount: $('Probe Plus Trial').first().json.data?.amount || 0, currency: $('Probe Plus Trial').first().json.data?.currency || 'IDR', use_account_token: false } }}",
         "options": {}
       },
       "id": "gpt-gopay-qris-payment-activate-start-payment",
@@ -219,7 +216,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2240,
+        3520,
         0
       ],
       "retryOnFail": true,
@@ -229,7 +226,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/complete-payment' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/complete-payment' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -241,7 +238,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        2560,
+        3840,
         0
       ],
       "retryOnFail": true,
@@ -278,7 +275,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        2880,
+        4160,
         0
       ]
     },
@@ -292,7 +289,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3200,
+        4480,
         0
       ]
     },
@@ -306,7 +303,7 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        3520,
+        4800,
         0
       ]
     },
@@ -325,7 +322,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3840,
+        5120,
         -180
       ]
     },
@@ -344,7 +341,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3840,
+        5120,
         0
       ]
     },
@@ -378,7 +375,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        4160,
+        5440,
         0
       ]
     },
@@ -392,7 +389,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1,
       "position": [
-        4480,
+        5760,
         0
       ],
       "webhookId": "byte-v-forge-gpt-gopay-qris-payment-activate-wait-manual-recheck"
@@ -400,7 +397,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/confirm-manual-payment' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/confirm-manual-payment' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -412,7 +409,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        4480,
+        5760,
         -180
       ],
       "retryOnFail": true,
@@ -434,7 +431,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        4800,
+        6080,
         -180
       ],
       "retryOnFail": true,
@@ -456,12 +453,136 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3200,
+        4480,
         180
       ],
       "retryOnFail": true,
       "maxTries": 3,
       "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Normalize Input').first().json;\nconst resolved = $('Resolve Account').first().json;\nreturn [{ json: { job_id: input.job_id, account_id: resolved.account_id || input.account_id, n8n_execution_id: input.n8n_execution_id, action_scope: 'gopay-qris-payment-activate' } }];\n"
+      },
+      "id": "gpt-gopay-qris-payment-activate-build-dynamic-proxy-input",
+      "name": "Build Dynamic Proxy Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": "gpt-dynamic-ip-preflight"
+      },
+      "id": "gpt-gopay-qris-payment-activate-run-dynamic-ip-preflight",
+      "name": "Run Dynamic IP Preflight",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "gpt-gopay-qris-payment-activate-dynamic-proxy-success",
+              "leftValue": "={{ $json.success }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-proxy-accepted",
+      "name": "Proxy Accepted?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1600,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/record-proxy' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, proxy_url: $json.proxy_url, data: $json.data } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-activate-record-dynamic-proxy",
+      "name": "Record Dynamic Proxy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        -320
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/fail-proxy' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, error_message: $json.error_message || 'dynamic proxy preflight failed', data: $json.data || $json } }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "gpt-gopay-qris-payment-activate-fail-dynamic-proxy",
+      "name": "Fail Dynamic Proxy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        160
+      ],
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "={{ $('Fail Dynamic Proxy').first().json.error_message || 'dynamic proxy preflight failed' }}"
+      },
+      "id": "gpt-gopay-qris-payment-activate-stop-dynamic-proxy",
+      "name": "Stop Dynamic Proxy",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        160
+      ]
     }
   ],
   "connections": {
@@ -491,7 +612,7 @@
       "main": [
         [
           {
-            "node": "Probe Plus Trial",
+            "node": "Build Dynamic Proxy Input",
             "type": "main",
             "index": 0
           }
@@ -663,6 +784,68 @@
         [
           {
             "node": "Finish After Manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Dynamic Proxy Input": {
+      "main": [
+        [
+          {
+            "node": "Run Dynamic IP Preflight",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Dynamic IP Preflight": {
+      "main": [
+        [
+          {
+            "node": "Proxy Accepted?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proxy Accepted?": {
+      "main": [
+        [
+          {
+            "node": "Record Dynamic Proxy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Dynamic Proxy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Dynamic Proxy": {
+      "main": [
+        [
+          {
+            "node": "Probe Plus Trial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fail Dynamic Proxy": {
+      "main": [
+        [
+          {
+            "node": "Stop Dynamic Proxy",
             "type": "main",
             "index": 0
           }

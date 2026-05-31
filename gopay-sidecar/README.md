@@ -1,4 +1,4 @@
-# GoPay sidecars
+# GoPay checkout sidecar
 
-GoPay app and payment runtimes run as sidecars of `gpt-service`.
-`gpt-service` owns orchestration and connects to these local runtimes over gRPC.
+Only GPT checkout / Stripe / Midtrans `snap_token` preparation remains as a `gpt-service` sidecar.
+GoPay App account/device/user-state and GoPay payment runtime are owned by the standalone `gopay-app` service.

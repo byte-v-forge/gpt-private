@@ -14,6 +14,10 @@ func (s *Server) FetchAccessToken(ctx context.Context, req *pb.FetchAccessTokenP
 	if strings.TrimSpace(cred.sessionToken) == "" {
 		return &pb.FetchAccessTokenPaymentResponse{Success: false, ErrorMessage: "session_token is required"}, nil
 	}
+	// /api/auth/session is a cookie-backed ChatGPT browser call. Supplying a
+	// cached bearer token here changes the request shape and can trigger edge
+	// rejection, so refresh uses the session cookie only.
+	cred.accessToken = ""
 	accessToken, err := s.fetchAccessToken(ctx, cred)
 	if err != nil {
 		return &pb.FetchAccessTokenPaymentResponse{Success: false, ErrorMessage: truncateError(err)}, nil
@@ -34,7 +38,7 @@ func (s *Server) fetchAccessToken(ctx context.Context, cred credential) (string,
 		return "", fmt.Errorf("auth session fetch failed: %w", err)
 	}
 	if resp.status != http.StatusOK {
-		return "", fmt.Errorf("auth session returned status %d", resp.status)
+		return "", fmt.Errorf("auth session returned status %d: %s", resp.status, resp.excerpt(300))
 	}
 	accessToken := strings.TrimSpace(stringAt(resp.json, "accessToken"))
 	if accessToken == "" {

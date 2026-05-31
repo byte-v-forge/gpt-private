@@ -3,10 +3,9 @@ package paymentsvc
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/byte-v-forge/common-lib/browserfingerprint"
-	"github.com/byte-v-forge/common-lib/fingerprinthttp"
-	"github.com/byte-v-forge/common-lib/stringx"
 	"github.com/google/uuid"
 )
 
@@ -17,14 +16,23 @@ type browserFingerprint struct {
 
 type browserFingerprintCandidate = browserfingerprint.ChromiumCandidate
 
-var defaultPaymentBrowserFingerprints = browserfingerprint.DefaultChromiumCandidates()
+var defaultPaymentBrowserFingerprints = []browserFingerprintCandidate{
+	{ProfileName: "chrome_146", MajorVersion: "146", OSToken: "Windows NT 10.0; Win64; x64", Platform: "Windows"},
+	{ProfileName: "chrome_146", MajorVersion: "146", OSToken: "Macintosh; Intel Mac OS X 14_6_1", Platform: "macOS"},
+	{ProfileName: "chrome_144", MajorVersion: "144", OSToken: "Windows NT 10.0; Win64; x64", Platform: "Windows"},
+	{ProfileName: "chrome_144", MajorVersion: "144", OSToken: "Macintosh; Intel Mac OS X 14_5", Platform: "macOS"},
+	{ProfileName: "chrome_133", MajorVersion: "133", OSToken: "Windows NT 10.0; Win64; x64", Platform: "Windows"},
+	{ProfileName: "chrome_133", MajorVersion: "133", OSToken: "Macintosh; Intel Mac OS X 13_7_2", Platform: "macOS"},
+	{ProfileName: "chrome_131", MajorVersion: "131", OSToken: "Windows NT 10.0; Win64; x64", Platform: "Windows"},
+	{ProfileName: "chrome_131", MajorVersion: "131", OSToken: "Macintosh; Intel Mac OS X 13_6_7", Platform: "macOS"},
+}
 
 func stablePaymentBrowserFingerprint(locale, selector, deviceID string) browserFingerprint {
 	candidate := selectPaymentBrowserFingerprintCandidate(defaultPaymentBrowserFingerprints, selector)
 	if candidate.ProfileName == "" {
 		candidate = defaultPaymentBrowserFingerprints[0]
 	}
-	return buildPaymentBrowserFingerprint(candidate, locale, stringx.FirstNonEmpty(deviceID, stablePaymentDeviceID(candidate)))
+	return buildPaymentBrowserFingerprint(candidate, locale, firstNonEmpty(deviceID, stablePaymentDeviceID(candidate)))
 }
 
 func randomPaymentBrowserFingerprint(locale string) browserFingerprint {
@@ -38,7 +46,7 @@ func browserFingerprintFromProfile(profile requestProfile) browserFingerprint {
 	if candidate.ProfileName == "" {
 		candidate = defaultPaymentBrowserFingerprints[0]
 	}
-	fp := buildPaymentBrowserFingerprint(candidate, profile.Locale, stringx.FirstNonEmpty(profile.DeviceID, stableRequestProfileDeviceID(profile, candidate)))
+	fp := buildPaymentBrowserFingerprint(candidate, profile.Locale, firstNonEmpty(profile.DeviceID, stableRequestProfileDeviceID(profile, candidate)))
 	if profile.UserAgent != "" {
 		fp.UserAgent = profile.UserAgent
 	}
@@ -53,6 +61,7 @@ func browserFingerprintFromProfile(profile requestProfile) browserFingerprint {
 	}
 	if profile.OAILanguage != "" {
 		fp.OAILanguage = profile.OAILanguage
+		fp.Language = profile.OAILanguage
 	}
 	return fp
 }
@@ -87,26 +96,30 @@ func stableRequestProfileDeviceID(profile requestProfile, candidate browserFinge
 
 func (fp browserFingerprint) withFallback(locale string) browserFingerprint {
 	if fp.UserAgent != "" && fp.TLSProfileName != "" {
+		if fp.OAILanguage == "" {
+			fp.OAILanguage = fp.Language
+		}
 		return fp
 	}
 	return stablePaymentBrowserFingerprint(locale, "", "")
 }
 
 func (fp browserFingerprint) applyBrowserHeaders(headers http.Header) {
-	fp.Fingerprint.ApplyBrowserHeaders(headers)
-}
-
-func (fp browserFingerprint) httpProfile(proxyURL string) fingerprinthttp.Profile {
-	fp = fp.withFallback(defaultBrowserLocale)
-	return fingerprinthttp.Profile{
-		ProxyURL:       proxyURL,
-		TLSProfileName: fp.TLSProfileName,
-		UserAgent:      fp.UserAgent,
-		SecCHUA:        fp.SecCHUA,
-		SecCHPlatform:  fp.SecCHPlatform,
-		AcceptLanguage: fp.AcceptLanguage,
-		Language:       fp.OAILanguage,
-		DeviceID:       fp.DeviceID,
+	if headers == nil {
+		return
+	}
+	if fp.UserAgent != "" {
+		headers.Set("User-Agent", fp.UserAgent)
+	}
+	if fp.AcceptLanguage != "" {
+		headers.Set("Accept-Language", fp.AcceptLanguage)
+	}
+	if fp.SecCHUA != "" {
+		headers.Set("sec-ch-ua", fp.SecCHUA)
+		headers.Set("sec-ch-ua-mobile", "?0")
+	}
+	if fp.SecCHPlatform != "" {
+		headers.Set("sec-ch-ua-platform", fp.SecCHPlatform)
 	}
 }
 
@@ -119,4 +132,13 @@ func (fp browserFingerprint) newAttemptHeaders() http.Header {
 	headers.Set("x-correlation-id", uuid.NewString())
 	headers.Set("x-request-id", uuid.NewString())
 	return headers
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value = strings.TrimSpace(value); value != "" {
+			return value
+		}
+	}
+	return ""
 }

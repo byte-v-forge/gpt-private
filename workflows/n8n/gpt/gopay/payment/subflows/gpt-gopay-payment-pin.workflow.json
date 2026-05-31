@@ -23,7 +23,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $json.job_id, account_id: $json.account_id, n8n_execution_id: $json.n8n_execution_id, user_id: $json.user_id, activation_id: $json.activation_id, state_json: $json.state_json } }}",
+        "jsonBody": "={{ { job_id: $json.job_id, account_id: $json.account_id, n8n_execution_id: $json.n8n_execution_id, gopay_account_id: $json.gopay_account_id, activation_id: $json.activation_id, state_json: $json.state_json } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-pin-start",
@@ -110,7 +110,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-pin-request-otp",
@@ -129,7 +129,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel, state_json: $('Start PIN').first().json.state_json, data: $('Start PIN').first().json.data } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel, state_json: $('Start PIN').first().json.state_json, data: $('Start PIN').first().json.data } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-pin-retry",
@@ -148,7 +148,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel, state_json: $('Start PIN').first().json.state_json, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start PIN').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel, state_json: $('Start PIN').first().json.state_json, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start PIN').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-pin-complete-with-otp",
@@ -167,7 +167,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Retry PIN').first().json.otp_channel } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Retry PIN').first().json.otp_channel } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-pin-request-retry-otp",
@@ -205,7 +205,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Retry PIN').first().json.otp_channel, state_json: $('Retry PIN').first().json.state_json, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start PIN').first().json, pin_retry: $('Retry PIN').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, activation_id: $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Retry PIN').first().json.otp_channel, state_json: $('Retry PIN').first().json.state_json, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { pin_start: $('Start PIN').first().json, pin_retry: $('Retry PIN').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-pin-complete-with-retry-otp",
@@ -384,11 +384,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-sms-otp' }}",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay Payment Workflow').first().json.operation, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('Start PIN').first().json.activation_id || $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Start PIN').first().json.otp_channel, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay Payment Workflow').first().json.operation, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, activation_id: $('Start PIN').first().json.activation_id || $('When Executed by GoPay Payment Workflow').first().json.activation_id, channel: 'sms', target: $('Start PIN').first().json.activation_id || $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
         "options": {}
       },
       "id": "payment-await-pin-sms-otp",
@@ -524,11 +524,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-sms-otp' }}",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay Payment Workflow').first().json.operation, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, activation_id: $('Retry PIN').first().json.activation_id || $('Start PIN').first().json.activation_id || $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_channel: $('Retry PIN').first().json.otp_channel || $('Start PIN').first().json.otp_channel, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Retry PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay Payment Workflow').first().json.operation, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, activation_id: $('Retry PIN').first().json.activation_id || $('Start PIN').first().json.activation_id || $('When Executed by GoPay Payment Workflow').first().json.activation_id, channel: 'sms', target: $('Retry PIN').first().json.activation_id || $('Start PIN').first().json.activation_id || $('When Executed by GoPay Payment Workflow').first().json.activation_id, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Retry PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
         "options": {}
       },
       "id": "payment-await-pin-retry-sms-otp",
@@ -630,11 +630,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-payment-otp' }}",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay Payment Workflow').first().json.operation, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, source: $('When Executed by GoPay Payment Workflow').first().json.user_id, purpose: 'gopay', otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay Payment Workflow').first().json.operation, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, channel: 'wa', target: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, otp_issued_after_unix: $('Start PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
         "options": {}
       },
       "id": "payment-pin-wa-otp-await",
@@ -736,11 +736,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-payment-otp' }}",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay Payment Workflow').first().json.operation, user_id: $('When Executed by GoPay Payment Workflow').first().json.user_id, source: $('When Executed by GoPay Payment Workflow').first().json.user_id, purpose: 'gopay', otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Retry PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment Workflow').first().json.job_id, account_id: $('When Executed by GoPay Payment Workflow').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment Workflow').first().json.n8n_execution_id, operation: $('When Executed by GoPay Payment Workflow').first().json.operation, gopay_account_id: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, channel: 'wa', target: $('When Executed by GoPay Payment Workflow').first().json.gopay_account_id, otp_issued_after_unix: $('Retry PIN').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Retry PIN').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_ensure_pin_setup' } } }}",
         "options": {}
       },
       "id": "payment-pin-retry-wa-otp-await",

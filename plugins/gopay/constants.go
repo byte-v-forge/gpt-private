@@ -1,14 +1,11 @@
 package gopay
 
 const (
-	actionGoPayApp                 = "GOPAY_APP"
 	actionGoPayPayment             = "GOPAY_PAYMENT"
 	actionGoPayQRISPaymentActivate = "GOPAY_QRIS_PAYMENT_ACTIVATE"
 	actionGoPayWAPayment           = "GOPAY_WA_PAYMENT"
 	actionGoPayPaymentRebind       = "GOPAY_PAYMENT_REBIND"
 )
-
-const capabilityGoPay = "gopay"
 
 const (
 	stepGoPayAppLogin                = "gopay_app_ensure_token_available"
@@ -32,8 +29,6 @@ const (
 	stepGoPayAppSignupPhoneCancel    = "gopay_app_signup_phone_cancel"
 	stepGoPayAppStatus               = "gopay_app_status"
 	stepGoPayAppEnsurePINSetup       = "gopay_app_ensure_pin_setup"
-	stepGoPayAppEnsureBalance        = "gopay_app_ensure_balance"
-	stepGoPayAppEnsureBalanceConfirm = "gopay_app_ensure_balance_confirm"
 	stepGoPayAppSMSFinish            = "gopay_app_sms_finish"
 	stepGoPayAppSMSRequestMore       = "gopay_app_sms_request_more"
 	stepGoPayPaymentPrepare          = "gopay_payment_prepare"

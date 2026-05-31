@@ -216,7 +216,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, user_id: $('When Executed by GoPay Payment').first().json.user_id, activation_id: $('Acquire Signup Phone').first().json.activation_id, phone: $('Acquire Signup Phone').first().json.phone, state_json: $('Check Signup Phone').first().json.state_json } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, gopay_account_id: $('When Executed by GoPay Payment').first().json.gopay_account_id, activation_id: $('Acquire Signup Phone').first().json.activation_id, phone: $('Acquire Signup Phone').first().json.phone, state_json: $('Check Signup Phone').first().json.state_json } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-start-signup",
@@ -306,7 +306,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, user_id: $('Start Signup').first().json.user_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, state_json: $('Start Signup').first().json.state_json, data: $('Start Signup').first().json.data } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, gopay_account_id: $('Start Signup').first().json.gopay_account_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, state_json: $('Start Signup').first().json.state_json, data: $('Start Signup').first().json.data } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-retry-signup",
@@ -328,7 +328,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, user_id: $('Start Signup').first().json.user_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, state_json: $('Start Signup').first().json.state_json, otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { signup_start: $('Start Signup').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, gopay_account_id: $('Start Signup').first().json.gopay_account_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, state_json: $('Start Signup').first().json.state_json, otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { signup_start: $('Start Signup').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-complete-signup-with-otp",
@@ -452,7 +452,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, user_id: $('Retry Signup').first().json.user_id, activation_id: $('Retry Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, gopay_account_id: $('Retry Signup').first().json.gopay_account_id, activation_id: $('Retry Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-request-signup-retry-otp",
@@ -474,7 +474,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, user_id: $('Retry Signup').first().json.user_id, activation_id: $('Retry Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel, state_json: $('Retry Signup').first().json.state_json, otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { signup_start: $('Start Signup').first().json, signup_retry: $('Retry Signup').first().json, otp: $json } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, gopay_account_id: $('Retry Signup').first().json.gopay_account_id, activation_id: $('Retry Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel, state_json: $('Retry Signup').first().json.state_json, otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix, otp_source: $json.otp_source || $json.body?.otp_source, data: { signup_start: $('Start Signup').first().json, signup_retry: $('Retry Signup').first().json, otp: $json } } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-complete-signup-with-retry-otp",
@@ -573,11 +573,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-sms-otp' }}",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, user_id: $('Start Signup').first().json.user_id, activation_id: $('Start Signup').first().json.activation_id, otp_channel: $('Start Signup').first().json.otp_channel, otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start Signup').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_signup' } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, gopay_account_id: $('Start Signup').first().json.gopay_account_id, activation_id: $('Start Signup').first().json.activation_id, channel: 'sms', target: $('Start Signup').first().json.activation_id, otp_issued_after_unix: $('Start Signup').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Start Signup').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_signup' } } }}",
         "options": {}
       },
       "id": "await-signup-sms-otp",
@@ -713,11 +713,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-sms-otp' }}",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, user_id: $('Retry Signup').first().json.user_id, activation_id: $('Retry Signup').first().json.activation_id, otp_channel: $('Retry Signup').first().json.otp_channel, otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Retry Signup').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_signup_retry' } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Payment').first().json.job_id, account_id: $('When Executed by GoPay Payment').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Payment').first().json.n8n_execution_id, gopay_account_id: $('Retry Signup').first().json.gopay_account_id, activation_id: $('Retry Signup').first().json.activation_id, channel: 'sms', target: $('Retry Signup').first().json.activation_id, otp_issued_after_unix: $('Retry Signup').first().json.otp_issued_after_unix, otp_timeout_seconds: $('Retry Signup').first().json.otp_timeout_seconds || 300, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_signup_retry' } } }}",
         "options": {}
       },
       "id": "await-signup-retry-sms-otp",

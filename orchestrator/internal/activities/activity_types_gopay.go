@@ -1,0 +1,42 @@
+//go:build private_plugins
+
+package activities
+
+import pb "orchestrator/pb"
+
+type GoPayActivityInput = pb.GoPayActivityInput
+type GoPayPaymentPrepareOutput = pb.GoPayPaymentPrepareOutput
+type GoPayResolveWAPhoneInput = pb.GoPayResolveWAPhoneInput
+type GoPayResolveWAPhoneOutput = pb.GoPayResolveWAPhoneOutput
+type GoPayAppStateActivityInput = pb.GoPayAppStateActivityInput
+type GoPayAppStateActivityOutput = pb.GoPayAppStateActivityOutput
+type GoPayPaymentRebindSourceInput = pb.GoPayPaymentRebindSourceInput
+type GoPayPaymentRebindSourceOutput = pb.GoPayPaymentRebindSourceOutput
+
+type GoPayAppStepInput = pb.GoPayAppStepInput
+type GoPayAppStepOutput = pb.GoPayAppStepOutput
+type GoPayAppChangePhoneGetNumberInput = pb.GoPayAppChangePhoneGetNumberInput
+type GoPayAppChangePhoneGetNumberOutput = pb.GoPayAppChangePhoneGetNumberOutput
+type GoPayAppChangePhoneStartInput = pb.GoPayAppChangePhoneStartInput
+type GoPayAppChangePhoneStartOutput = pb.GoPayAppChangePhoneStartOutput
+type GoPayAppAcquireSignupPhoneInput = pb.GoPayAppAcquireSignupPhoneInput
+type GoPayAppAcquireSignupPhoneOutput = pb.GoPayAppAcquireSignupPhoneOutput
+type GoPayAppGenerateDeviceProxyInput = pb.GoPayAppGenerateDeviceProxyInput
+type GoPayAppGenerateDeviceProxyOutput = pb.GoPayAppGenerateDeviceProxyOutput
+type GoPayAppCheckSignupPhoneInput = pb.GoPayAppCheckSignupPhoneInput
+type GoPayAppCheckSignupPhoneOutput = pb.GoPayAppCheckSignupPhoneOutput
+type GoPayAppChangePhoneRetryInput = pb.GoPayAppChangePhoneRetryInput
+type GoPayAppChangePhoneRetryOutput = pb.GoPayAppChangePhoneRetryOutput
+type GoPayAppSMSActivationInput = pb.GoPayAppSMSActivationInput
+type GoPayAppSMSActivationOutput = pb.GoPayAppSMSActivationOutput
+type GoPayAppChangePhoneCompleteInput = pb.GoPayAppChangePhoneCompleteInput
+type GoPayAppChangePhoneCompleteOutput = pb.GoPayAppChangePhoneCompleteOutput
+type GoPayAppDeactivateStartInput = pb.GoPayAppDeactivateStartInput
+type GoPayAppDeactivateStartOutput = pb.GoPayAppDeactivateStartOutput
+type GoPayAppDeactivateCompleteInput = pb.GoPayAppDeactivateCompleteInput
+type GoPayAppDeactivateCompleteOutput = pb.GoPayAppDeactivateCompleteOutput
+type GoPayAppOTPStartInput = pb.GoPayAppOTPStartInput
+type GoPayAppOTPOutput = pb.GoPayAppOTPOutput
+type GoPayAppOTPCompleteInput = pb.GoPayAppOTPCompleteInput
+type GoPayAppCreatePinStartInput = pb.GoPayAppCreatePinStartInput
+type GoPayAppCreatePinCompleteInput = pb.GoPayAppCreatePinCompleteInput

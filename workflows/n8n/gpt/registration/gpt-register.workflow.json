@@ -181,7 +181,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Normalize Input').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $json.browser_session_id, email: $json.email, timeout_seconds: $json.otp_timeout_seconds || 300, otp_issued_after_unix: $json.otp_issued_after_unix || 0, resume_url: $execution.resumeUrl } }}",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Normalize Input').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, flow_id: $json.browser_session_id, channel: 'email', target: $json.email, timeout_seconds: $json.otp_timeout_seconds || 300, otp_issued_after_unix: $json.otp_issued_after_unix || 0, resume_url: $execution.resumeUrl } }}",
         "options": {}
       },
       "id": "register-otp-resume",

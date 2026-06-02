@@ -208,7 +208,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, gopay_account_id: $('Resolve Account').first().json.gopay_account_id || $('Resolve Account').first().json.data?.gopay_account_id, flow_id: $('Prepare Link').first().json.flow_id, snap_token: $('Prepare Link').first().json.snap_token, checkout_url: $('Prepare Link').first().json.checkout_url, checkout_session_id: $('Prepare Link').first().json.checkout_session_id, tokenization: 'qris', amount: $('Probe Plus Trial').first().json.data?.amount || 0, currency: $('Probe Plus Trial').first().json.data?.currency || 'IDR', use_account_token: false } }}",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, gopay_account_id: $('Resolve Account').first().json.gopay_account_id || $('Resolve Account').first().json.data?.gopay_account_id, flow_id: $('Prepare Link').first().json.flow_id, snap_token: $('Prepare Link').first().json.snap_token, checkout_url: $('Prepare Link').first().json.checkout_url, checkout_session_id: $('Prepare Link').first().json.checkout_session_id, tokenization: 'qris', amount: Number($('Probe Plus Trial').first().json.data?.amount || 0), currency: $('Probe Plus Trial').first().json.data?.currency || 'IDR', use_account_token: false } }}",
         "options": {}
       },
       "id": "gpt-gopay-qris-payment-activate-start-payment",
@@ -216,7 +216,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3520,
+        3840,
         0
       ],
       "retryOnFail": true,
@@ -238,7 +238,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3840,
+        4160,
         0
       ],
       "retryOnFail": true,
@@ -275,7 +275,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        4160,
+        4480,
         0
       ]
     },
@@ -289,7 +289,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4480,
+        4800,
         0
       ]
     },
@@ -303,7 +303,7 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        4800,
+        5120,
         0
       ]
     },
@@ -322,7 +322,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        5120,
+        5440,
         -180
       ]
     },
@@ -341,7 +341,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        5120,
+        5440,
         0
       ]
     },
@@ -375,7 +375,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        5440,
+        5760,
         0
       ]
     },
@@ -389,7 +389,7 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1,
       "position": [
-        5760,
+        6080,
         0
       ],
       "webhookId": "byte-v-forge-gpt-gopay-qris-payment-activate-wait-manual-recheck"
@@ -409,7 +409,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        5760,
+        6080,
         -180
       ],
       "retryOnFail": true,
@@ -431,7 +431,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        6080,
+        6400,
         -180
       ],
       "retryOnFail": true,
@@ -453,7 +453,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        4480,
+        4800,
         180
       ],
       "retryOnFail": true,
@@ -583,6 +583,59 @@
         2240,
         160
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "prepare-link-ready-cond",
+              "leftValue": "={{ $json.success === true && ($json.snap_token_present === true || !!$json.snap_token) && $json.data?.retryable_fresh_checkout !== true }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-prepare-link-ready",
+      "name": "Prepare Link Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-qris-payment-activate/fail' }}",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, error_message: $('Prepare Link').first().json.error_message || $('Prepare Link').first().json.data?.error_message || 'gopay payment prepare link failed', data: { prepare_link: $('Prepare Link').first().json.data || {}, flow_id_present: !!$('Prepare Link').first().json.flow_id, checkout_session_id_present: !!$('Prepare Link').first().json.checkout_session_id, snap_token_present: !!$('Prepare Link').first().json.snap_token } } }}",
+        "options": {}
+      },
+      "id": "gpt-gopay-qris-payment-fail-prepare-link",
+      "name": "Fail Prepare Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        240
+      ]
     }
   ],
   "connections": {
@@ -663,7 +716,7 @@
       "main": [
         [
           {
-            "node": "Start Payment",
+            "node": "Prepare Link Ready?",
             "type": "main",
             "index": 0
           }
@@ -846,6 +899,24 @@
         [
           {
             "node": "Stop Dynamic Proxy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Link Ready?": {
+      "main": [
+        [
+          {
+            "node": "Start Payment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fail Prepare Link",
             "type": "main",
             "index": 0
           }

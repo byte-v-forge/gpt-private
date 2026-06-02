@@ -5,8 +5,8 @@ import (
 	"github.com/byte-v-forge/gpt/pkg/gptplugin"
 )
 
-func init() {
-	gptplugin.Register(gptplugin.PluginFunc(Register))
+func Plugin() gptplugin.Plugin {
+	return gptplugin.PluginFunc(Register)
 }
 
 func Register(registry gptplugin.ActionRegistry) error {

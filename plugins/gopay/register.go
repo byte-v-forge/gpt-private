@@ -18,12 +18,12 @@ func Register(registry gptplugin.ActionRegistry) error {
 
 func actions() []gptplugin.ActionDefinition {
 	payment := withCapabilities(
-		plugincatalog.WithUIButton(plugincatalog.WithRequiredStatuses(n8nAction(actionGoPayPayment, "GoPay Payment", "gopay-payment", "gopay-payment-", "/workflows/gopay-payment", "gopay-payment", "gpt/gopay-payment", "/actions/gopay-payment", "orchestrator.GoPayPaymentRequest", "orchestrator.GoPayPaymentResponse", "GoPay 支付", "account_detail"), "REGISTERED"), "GoPay 支付", "account_row"),
+		plugincatalog.WithUIButton(plugincatalog.WithRequiredStatuses(n8nAction(actionGoPayPayment, "GoPay Payment", "gopay-payment", "gopay-payment-", "/workflows/gopay-payment", "gopay-payment", "gpt/gopay-payment", "/actions/gopay-payment", "gpt_private.GoPayPaymentRequest", "gpt_private.GoPayPaymentResponse", "GoPay 支付", "account_detail"), "REGISTERED"), "GoPay 支付", "account_row"),
 		gptplugin.CapabilityPayment,
 		gptplugin.CapabilityN8NWorkflow,
 	)
 	qris := withCapabilities(
-		plugincatalog.WithRequiredStatuses(n8nAction(actionGoPayQRISPaymentActivate, "GoPay QRIS Payment Activate", "gopay-qris-payment-activate", "gopay-qris-payment-activate-", "/workflows/gopay-qris-payment-activate", "gopay-qris-payment-activate", "gpt/gopay-qris-payment-activate", "/actions/gopay-qris-payment-activate", "orchestrator.GoPayQRISPaymentActivateRequest", "orchestrator.GoPayPaymentResponse", "QRIS 激活", "account_detail"), "REGISTERED"),
+		plugincatalog.WithRequiredStatuses(n8nAction(actionGoPayQRISPaymentActivate, "GoPay QRIS Payment Activate", "gopay-qris-payment-activate", "gopay-qris-payment-activate-", "/workflows/gopay-qris-payment-activate", "gopay-qris-payment-activate", "gpt/gopay-qris-payment-activate", "/actions/gopay-qris-payment-activate", "gpt_private.GoPayQRISPaymentActivateRequest", "gpt_private.GoPayPaymentResponse", "QRIS 激活", "account_detail"), "REGISTERED"),
 		gptplugin.CapabilityPayment,
 		gptplugin.CapabilityActivation,
 		gptplugin.CapabilityN8NWorkflow,

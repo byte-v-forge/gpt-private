@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE_ROOT="${SOURCE_ROOT:-$(cd "${ROOT}/../.." && pwd)}"
 GPT_PROTO_DIR="${GPT_PROTO_DIR:-${SOURCE_ROOT}/gpt/proto}"
 GOPAY_APP_PROTO_DIR="${GOPAY_APP_PROTO_DIR:-${SOURCE_ROOT}/gopay-app/proto}"
-PRIVATE_ORCHESTRATOR_PROTO_DIR="${PRIVATE_ORCHESTRATOR_PROTO_DIR:-${SOURCE_ROOT}/gpt-private/orchestrator/proto}"
+PRIVATE_PROTO_DIR="${PRIVATE_PROTO_DIR:-${SOURCE_ROOT}/gpt-private/proto}"
 COMMON_PROTO_DIR="${COMMON_PROTO_DIR:-${SOURCE_ROOT}/common-lib/proto}"
 OUT_DIR="${OUT_DIR:-${ROOT}/src/proto}"
 LOCAL_PLUGIN="${ROOT}/node_modules/.bin/protoc-gen-ts_proto"
@@ -33,11 +33,11 @@ rm -rf "${OUT_DIR}"
 mkdir -p "${OUT_DIR}"
 
 ORCHESTRATOR_PROTOS=("${GPT_PROTO_DIR}"/orchestrator*.proto)
-PRIVATE_ORCHESTRATOR_PROTOS=()
-if [[ -d "${PRIVATE_ORCHESTRATOR_PROTO_DIR}" ]]; then
-  PRIVATE_ORCHESTRATOR_PROTOS=("${PRIVATE_ORCHESTRATOR_PROTO_DIR}"/orchestrator*.proto)
+PRIVATE_PROTOS=()
+if [[ -d "${PRIVATE_PROTO_DIR}" ]]; then
+  PRIVATE_PROTOS=("${PRIVATE_PROTO_DIR}"/*.proto)
 fi
-PROTO_INCLUDES=("-I" "${GPT_PROTO_DIR}" "-I" "${GOPAY_APP_PROTO_DIR}" "-I" "${PRIVATE_ORCHESTRATOR_PROTO_DIR}" "-I" "${COMMON_PROTO_DIR}")
+PROTO_INCLUDES=("-I" "${GPT_PROTO_DIR}" "-I" "${GOPAY_APP_PROTO_DIR}" "-I" "${PRIVATE_PROTO_DIR}" "-I" "${COMMON_PROTO_DIR}")
 if [[ -d /usr/include/google/protobuf ]]; then
   PROTO_INCLUDES+=("-I" "/usr/include")
 fi
@@ -52,4 +52,4 @@ protoc "${PROTO_INCLUDES[@]}" \
   "${GOPAY_APP_PROTO_DIR}/gopay_app.proto" \
   "${GPT_PROTO_DIR}/payment.proto" \
   "${ORCHESTRATOR_PROTOS[@]}" \
-  "${PRIVATE_ORCHESTRATOR_PROTOS[@]}"
+  "${PRIVATE_PROTOS[@]}"

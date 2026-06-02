@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package gpt_private;
+
+option go_package = "./;pb";
+
+message GoPayPaymentRequest {
+  string account_id = 1;
+  string source_job_id = 2;
+  string gopay_account_id = 3;
+  string tokenization = 4;
+}
+
+message GoPayQRISPaymentActivateRequest {
+  string account_id = 1;
+  string source_job_id = 2;
+  string gopay_account_id = 3;
+}
+
+message GoPayPaymentResponse {
+  string job_id = 1;
+  bool started = 2;
+  bool success = 3;
+  string error_message = 4;
+  string charge_ref = 5;
+  string snap_token = 6;
+  string activation_id = 7;
+  string phone = 8;
+  string wa_phone = 9;
+  string bound_phone = 10;
+  string change_phone_activation_id = 11;
+  bool change_phone_complete = 12;
+  string gopay_account_id = 13;
+}
+
+message ConfirmManualGoPayPaymentRequest {
+  string job_id = 1;
+}
+
+message ConfirmManualGoPayPaymentResponse {
+  bool success = 1;
+  string job_id = 2;
+  string error_message = 3;
+}

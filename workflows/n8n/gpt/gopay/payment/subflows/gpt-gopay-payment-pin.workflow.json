@@ -19,7 +19,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/start-pin' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/start-pin' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -106,7 +106,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/request-pin-otp' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/request-pin-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -125,7 +125,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/retry-pin' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/retry-pin' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -144,7 +144,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/complete-pin' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/complete-pin' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -163,7 +163,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/request-pin-otp' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/request-pin-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -201,7 +201,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/complete-pin' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/complete-pin' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -384,7 +384,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -524,7 +524,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -630,7 +630,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -736,7 +736,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",

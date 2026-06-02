@@ -88,7 +88,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/gopay-payment-rebind/load-state' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/load-state' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",

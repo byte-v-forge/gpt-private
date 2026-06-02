@@ -68,7 +68,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/acquire-change-phone-number' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/acquire-change-phone-number' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -90,7 +90,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/start-change-phone' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/start-change-phone' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -146,11 +146,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/cancel-change-phone' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/cancel-change-phone' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: $('Start Change Phone').first().json.error_message || 'change phone start retryable failure' } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: $('Start Change Phone').first().json.error_message || 'change phone start retryable failure' }} }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-change-phone-cancel-start-failure",
@@ -251,11 +251,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/cancel-change-phone' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/cancel-change-phone' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: 'change phone otp timeout' } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: 'change phone otp timeout' }} }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-change-phone-cancel-otp-timeout",
@@ -307,7 +307,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/retry-change-phone-otp' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/retry-change-phone-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -363,11 +363,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/cancel-change-phone' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/cancel-change-phone' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: $('Retry Change Phone OTP').first().json.error_message || 'change phone otp retry failed' } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Start Change Phone').first().json.failure_count || 0, reason: $('Retry Change Phone OTP').first().json.error_message || 'change phone otp retry failed' }} }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-change-phone-cancel-retry-failure",
@@ -398,7 +398,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/complete-change-phone' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/complete-change-phone' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
@@ -501,11 +501,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/cancel-change-phone' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/cancel-change-phone' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Complete Change Phone').first().json.failure_count || $('Start Change Phone').first().json.failure_count || 0, reason: $('Complete Change Phone').first().json.error_message || 'change phone complete retryable failure' } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $('Start Change Phone').first().json.activation_id, failure_count: $('Complete Change Phone').first().json.failure_count || $('Start Change Phone').first().json.failure_count || 0, reason: $('Complete Change Phone').first().json.error_message || 'change phone complete retryable failure' }} }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-change-phone-cancel-complete-retryable",
@@ -545,11 +545,11 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "={{ $env.GPT_ACTION_API_BASE_URL + '/' + String($('When Executed by GoPay Change Phone').first().json.action_scope || $('When Executed by GoPay Change Phone').first().json.action || 'gopay-payment-rebind').toLowerCase().replace(/_/g, '-') + '/await-channel-otp' }}",
+        "url": "={{ $env.GOPAY_ACTION_API_BASE_URL + '/gopay-payment/await-channel-otp' }}",
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $json.activation_id, channel: 'sms', target: $json.activation_id, phone: $json.phone, otp_issued_after_unix: $json.otp_issued_after_unix, otp_timeout_seconds: $json.otp_timeout_seconds || 180, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_change_phone_sms_wait' } } }}",
+        "jsonBody": "={{ { job_id: $('When Executed by GoPay Change Phone').first().json.job_id, account_id: $('When Executed by GoPay Change Phone').first().json.account_id, n8n_execution_id: $('When Executed by GoPay Change Phone').first().json.n8n_execution_id, operation: $('When Executed by GoPay Change Phone').first().json.operation, gopay_account_id: $('When Executed by GoPay Change Phone').first().json.gopay_account_id, activation_id: $json.activation_id, channel: 'sms', target: $json.activation_id, phone: $json.phone, otp_issued_after_unix: $json.otp_issued_after_unix, otp_timeout_seconds: $json.otp_timeout_seconds || 180, resume_url: $execution.resumeUrl, data: { step_name: 'gopay_app_change_phone_sms_wait' }} } }}",
         "options": {}
       },
       "id": "change-phone-await-channel-otp",

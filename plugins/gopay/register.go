@@ -1,7 +1,6 @@
 package gopay
 
 import (
-	"github.com/byte-v-forge/gpt-private/plugins/internal/plugincatalog"
 	"github.com/byte-v-forge/gpt/pkg/gptplugin"
 )
 
@@ -17,31 +16,53 @@ func Register(registry gptplugin.ActionRegistry) error {
 }
 
 func actions() []gptplugin.ActionDefinition {
-	payment := withCapabilities(
-		plugincatalog.WithUIButton(plugincatalog.WithRequiredStatuses(n8nAction(actionGoPayPayment, "GoPay Payment", "gopay-payment", "gopay-payment-", "/workflows/gopay-payment", "gopay-payment", "gpt/gopay-payment", "/actions/gopay-payment", "gpt_private.GoPayPaymentRequest", "gpt_private.GoPayPaymentResponse", "GoPay 支付", "account_detail"), "REGISTERED"), "GoPay 支付", "account_row"),
-		gptplugin.CapabilityPayment,
-		gptplugin.CapabilityN8NWorkflow,
-	)
-	qris := withCapabilities(
-		plugincatalog.WithRequiredStatuses(n8nAction(actionGoPayQRISPaymentActivate, "GoPay QRIS Payment Activate", "gopay-qris-payment-activate", "gopay-qris-payment-activate-", "/workflows/gopay-qris-payment-activate", "gopay-qris-payment-activate", "gpt/gopay-qris-payment-activate", "/actions/gopay-qris-payment-activate", "gpt_private.GoPayQRISPaymentActivateRequest", "gpt_private.GoPayPaymentResponse", "QRIS 激活", "account_detail"), "REGISTERED"),
-		gptplugin.CapabilityPayment,
-		gptplugin.CapabilityActivation,
-		gptplugin.CapabilityN8NWorkflow,
-	)
+	payment := n8nAction(gptplugin.N8NActionSpec{
+		ActionID:                actionGoPayPayment,
+		DisplayName:             "GoPay Payment",
+		WorkflowKey:             "gopay-payment",
+		WorkflowIDPrefix:        "gopay-payment-",
+		StartPath:               "/workflows/gopay-payment",
+		ActionScope:             "gopay-payment",
+		WebhookPath:             "gpt/gopay-payment",
+		ActionPathPrefix:        "/actions/gopay-payment",
+		RequestProto:            "gpt_private.GoPayPaymentRequest",
+		ResponseProto:           "gpt_private.GoPayPaymentResponse",
+		Button:                  actionButton("GoPay 支付", "account_detail"),
+		ExtraButtons:            []gptplugin.ActionButtonSpec{actionButton("GoPay 支付", "account_row")},
+		RequiredAccountStatuses: []string{gptplugin.AccountStatusRegistered},
+		Capabilities:            []string{gptplugin.CapabilityPayment, gptplugin.CapabilityN8NWorkflow},
+		StaleSteps:              staleSteps(),
+	})
+	qris := n8nAction(gptplugin.N8NActionSpec{
+		ActionID:                actionGoPayQRISPaymentActivate,
+		DisplayName:             "GoPay QRIS Payment Activate",
+		WorkflowKey:             "gopay-qris-payment-activate",
+		WorkflowIDPrefix:        "gopay-qris-payment-activate-",
+		StartPath:               "/workflows/gopay-qris-payment-activate",
+		ActionScope:             "gopay-qris-payment-activate",
+		WebhookPath:             "gpt/gopay-qris-payment-activate",
+		ActionPathPrefix:        "/actions/gopay-qris-payment-activate",
+		RequestProto:            "gpt_private.GoPayQRISPaymentActivateRequest",
+		ResponseProto:           "gpt_private.GoPayPaymentResponse",
+		Button:                  actionButton("QRIS 激活", "account_detail"),
+		RequiredAccountStatuses: []string{gptplugin.AccountStatusRegistered},
+		Capabilities:            []string{gptplugin.CapabilityPayment, gptplugin.CapabilityActivation, gptplugin.CapabilityN8NWorkflow},
+		StaleSteps:              staleSteps(),
+	})
 	return []gptplugin.ActionDefinition{
 		payment,
 		qris,
 	}
 }
 
-func withCapabilities(def gptplugin.ActionDefinition, capabilities ...string) gptplugin.ActionDefinition {
-	return plugincatalog.WithCapabilities(def, capabilities...)
+func n8nAction(spec gptplugin.N8NActionSpec) gptplugin.ActionDefinition {
+	spec.Owner = "gpt-private"
+	spec.ActionAPIKind = gptplugin.ActionAPIKindRawN8N
+	return gptplugin.BuildN8NAction(spec)
 }
 
-func n8nAction(actionID string, displayName string, workflowKey string, workflowIDPrefix string, startPath string, actionScope string, webhookPath string, actionPathPrefix string, requestProto string, responseProto string, buttonLabel string, placement string) gptplugin.ActionDefinition {
-	def := plugincatalog.N8NAction("gpt-private", actionID, displayName, workflowKey, workflowIDPrefix, startPath, actionScope, webhookPath, actionPathPrefix, requestProto, responseProto, buttonLabel, placement, staleSteps())
-	def.Workflow.ActionAPIKind = gptplugin.ActionAPIKindRawN8N
-	return def
+func actionButton(label string, placement string) gptplugin.ActionButtonSpec {
+	return gptplugin.ActionButtonSpec{Label: label, Placement: placement}
 }
 
 func staleSteps() []string {

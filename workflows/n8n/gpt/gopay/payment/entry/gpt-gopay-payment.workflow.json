@@ -122,7 +122,7 @@
           "conditions": [
             {
               "id": "eligible-cond",
-              "leftValue": "={{ $json.checked && ($json.plus_trial_eligible || $json.plus_active) }}",
+              "leftValue": "={{ $json.checked && ($json.plus_trial_eligible || $json.plus_active || $json.data?.checkout_url_present || $json.data?.checkout_session_id || Number($json.data?.amount || 0) > 0) }}",
               "rightValue": true,
               "operator": {
                 "type": "boolean",
@@ -151,7 +151,7 @@
         "sendBody": true,
         "contentType": "json",
         "specifyBody": "json",
-        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, error_message: 'account is not plus trial eligible', data: $('Probe Plus Trial').first().json } }}",
+        "jsonBody": "={{ { job_id: $('Normalize Input').first().json.job_id, account_id: $('Resolve Account').first().json.account_id, n8n_execution_id: $('Normalize Input').first().json.n8n_execution_id, error_message: 'account has no payable plus checkout', data: $('Probe Plus Trial').first().json } }}",
         "options": {}
       },
       "id": "gpt-gopay-payment-fail-not-eligible",

@@ -9,9 +9,25 @@ import (
 )
 
 func (c *charger) chatGPTApprove(ctx context.Context, csID string) error {
-	if err := c.cs.setProxy(c.paymentProfile.ProxyURL); err != nil {
-		return fmt.Errorf("chatgpt approve proxy switch: %w", err)
+	proxies := distinctProxyURLs(c.paymentProfile.ProxyURL, c.checkoutProfile.ProxyURL)
+	var lastErr error
+	for index, proxyURL := range proxies {
+		if err := c.cs.setProxy(proxyURL); err != nil {
+			return fmt.Errorf("chatgpt approve proxy switch: %w", err)
+		}
+		if err := c.chatGPTApproveWithCurrentSession(ctx, csID); err != nil {
+			lastErr = err
+			if !isChatGPTApproveBlocked(err) || index == len(proxies)-1 {
+				return err
+			}
+			continue
+		}
+		return nil
 	}
+	return lastErr
+}
+
+func (c *charger) chatGPTApproveWithCurrentSession(ctx context.Context, csID string) error {
 	headers := c.chatGPTApproveHeaders(csID)
 	c.chatGPTSentinelPing(ctx, c.cs)
 
@@ -52,6 +68,20 @@ func (c *charger) chatGPTApprove(ctx context.Context, csID string) error {
 		return fmt.Errorf("chatgpt approve: result=%q body=%s", result, lastBody)
 	}
 	return chatGPTApproveBlockedError{status: lastStatus, body: lastBody}
+}
+
+func distinctProxyURLs(values ...string) []string {
+	seen := map[string]bool{}
+	var out []string
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if seen[value] {
+			continue
+		}
+		seen[value] = true
+		out = append(out, value)
+	}
+	return out
 }
 
 func (c *charger) chatGPTSentinelPing(ctx context.Context, session *GptClient) {
